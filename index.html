@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>AI &amp; I — Games R Us</title>
+<style>
+:root{
+  --gold:#f0c34d; --gold-soft:#c9a24b;
+  --accent:#3ec6e0; --accent-glow:rgba(62,198,224,0.55);
+  --violet:#a473ff; --violet-glow:rgba(164,115,255,0.5);
+  --danger:#e0645a; --good:#4fbf6b;
+}
+html[data-theme="dark"]{
+  --bg-0:#07050f; --bg-1:#0e0a1e; --panel:#151129; --panel-2:#100c20;
+  --felt-1:#123a52; --felt-2:#1c0f3a; --felt-3:#3a1a52;
+  --line:rgba(240,195,77,0.28); --text:#f1eef8; --text-dim:rgba(241,238,248,0.58);
+}
+html[data-theme="light"]{
+  --bg-0:#f3eefb; --bg-1:#e9e0fa; --panel:#ffffff; --panel-2:#f6f2fc;
+  --felt-1:#1c5f82; --felt-2:#3a2064; --felt-3:#5a2a78;
+  --line:rgba(140,90,190,0.35); --text:#160f28; --text-dim:rgba(22,15,40,0.62);
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  min-height:100vh; color:var(--text); font-family:'Segoe UI',Arial,sans-serif;
+  background:
+    radial-gradient(ellipse 900px 600px at 15% -10%, rgba(164,115,255,0.28), transparent 60%),
+    radial-gradient(ellipse 900px 700px at 90% 10%, rgba(62,198,224,0.22), transparent 55%),
+    radial-gradient(ellipse 1200px 900px at 50% 110%, rgba(90,30,120,0.35), transparent 60%),
+    linear-gradient(180deg, var(--bg-1), var(--bg-0) 55%);
+  background-attachment:fixed;
+  overflow-x:hidden;
+}
+.swirl{ position:fixed; inset:0; z-index:0; pointer-events:none; opacity:0.5; overflow:hidden; }
+.swirl span{
+  position:absolute; border-radius:50%; filter:blur(60px);
+  background:conic-gradient(from 0deg, rgba(164,115,255,0.35), rgba(62,198,224,0.3), rgba(240,195,77,0.22), rgba(164,115,255,0.35));
+  animation:drift 26s linear infinite;
+}
+.swirl span:nth-child(1){ width:520px; height:520px; top:-160px; left:-140px; animation-duration:32s; }
+.swirl span:nth-child(2){ width:420px; height:420px; bottom:-140px; right:-120px; animation-duration:24s; animation-direction:reverse; }
+.swirl span:nth-child(3){ width:340px; height:340px; top:40%; left:60%; animation-duration:40s; }
+@keyframes drift{ 0%{ transform:rotate(0deg) scale(1); } 50%{ transform:rotate(180deg) scale(1.12); } 100%{ transform:rotate(360deg) scale(1); } }
+
+.wrap{ position:relative; z-index:1; max-width:900px; margin:0 auto; padding:16px 14px 70px; }
+
+.topbar{ display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; margin-bottom:10px; }
+.brand{ display:flex; flex-direction:column; line-height:1.05; }
+.brand .ai{ font-family:Georgia,serif; font-style:italic; font-weight:700; font-size:22px; color:var(--gold); letter-spacing:0.5px; }
+.brand .gru{ font-size:11px; font-weight:800; letter-spacing:3px; color:var(--accent); text-transform:uppercase; }
+.brand .gru .flipR{ display:inline-block; transform:scaleX(-1); }
+.brand .tagline{ font-size:9.5px; letter-spacing:2px; text-transform:uppercase; color:var(--text-dim); margin-top:2px; }
+.iconbtn{ background:var(--panel); border:1px solid var(--line); color:var(--text); border-radius:9px; padding:8px 12px; font-size:11px; letter-spacing:0.5px; cursor:pointer; transition:all .15s ease; }
+.iconbtn:hover{ border-color:var(--gold); color:var(--gold); }
+
+.title-hero{ text-align:center; margin:18px 0 26px; }
+.title-hero h1{ font-family:Georgia,serif; font-style:italic; font-size:clamp(28px,7vw,44px); margin:0; letter-spacing:0.5px;
+  background:linear-gradient(95deg,var(--gold),var(--accent) 55%,var(--violet)); -webkit-background-clip:text; background-clip:text; color:transparent; }
+.title-hero p{ margin:6px 0 0; font-size:12px; letter-spacing:2px; text-transform:uppercase; color:var(--text-dim); }
+
+.game-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:18px; }
+@media (max-width:900px){ .game-grid{ grid-template-columns:1fr 1fr; } }
+@media (max-width:640px){ .game-grid{ grid-template-columns:1fr; } }
+.game-card h2.accent{ color:var(--accent); }
+.game-card.poker .cta{ color:var(--accent); }
+
+.game-card{
+  position:relative; display:block; text-decoration:none; color:var(--text);
+  border-radius:22px; padding:22px 20px 20px; overflow:hidden;
+  border:1px solid var(--line);
+  background:radial-gradient(ellipse at 50% 0%, var(--felt-1), var(--felt-3) 75%, var(--felt-2) 100%);
+  box-shadow:0 16px 40px rgba(0,0,0,0.45), inset 0 0 60px rgba(0,0,0,0.35);
+  transition:transform .18s ease, box-shadow .18s ease;
+}
+.game-card:hover{ transform:translateY(-3px); box-shadow:0 22px 50px rgba(0,0,0,0.55), inset 0 0 60px rgba(0,0,0,0.35); }
+.game-card .kicker{ font-size:9.5px; letter-spacing:2.5px; text-transform:uppercase; color:var(--text-dim); }
+.game-card h2{ font-family:Georgia,serif; font-style:italic; font-size:24px; margin:4px 0 8px; color:var(--gold); }
+.game-card h2.violet{ color:var(--violet); }
+.game-card p{ font-size:12.5px; line-height:1.7; color:var(--text-dim); margin:0 0 16px; }
+.game-card .cta{ display:inline-flex; align-items:center; gap:6px; font-size:11px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--gold); }
+.game-card.half .cta{ color:var(--violet); }
+.game-card .badge-row{ display:flex; gap:6px; flex-wrap:wrap; margin-bottom:14px; }
+.tag{ font-size:9.5px; letter-spacing:0.5px; padding:3px 9px; border-radius:20px; border:1px solid var(--line); color:var(--text-dim); }
+
+.coming-soon{
+  border:1px dashed var(--line); border-radius:22px; padding:22px 20px; text-align:center;
+  color:var(--text-dim); font-size:12px; letter-spacing:0.5px; margin-bottom:20px;
+}
+.coming-soon b{ color:var(--text); }
+
+footer{ text-align:center; font-size:10px; color:var(--text-dim); letter-spacing:1px; margin-top:18px; }
+footer .flipR{ display:inline-block; transform:scaleX(-1); }
+.legal-link-row{ text-align:center; margin:0 0 14px; }
+.legal-link{ font-size:11px; letter-spacing:0.5px; color:var(--text-dim); text-decoration:none; border-bottom:1px dotted var(--line); padding-bottom:2px; }
+.legal-link:hover{ color:var(--gold); }
+
+@media (max-width:520px){
+  .wrap{ padding:12px 8px 60px; }
+  .topbar{ flex-direction:column; text-align:center; align-items:center; }
+  .brand{ align-items:center; }
+}
+</style>
+</head>
+<body>
+
+<div class="swirl"><span></span><span></span><span></span></div>
+
+<div class="wrap">
+
+  <div class="topbar">
+    <div class="brand">
+      <span class="ai">AI &amp; I</span>
+      <span class="gru">Games <span class="flipR">R</span> Us</span>
+      <span class="tagline">Table VII &amp; the Reversal Family</span>
+    </div>
+    <button class="iconbtn" id="themeBtn">🌙 Theme</button>
+  </div>
+
+  <div class="title-hero">
+    <h1>Games R Us</h1>
+    <p>Pick your table</p>
+  </div>
+
+  <div class="game-grid">
+    <a class="game-card" href="./blackjack-reversal.html">
+      <div class="kicker">Blackjack — The Original</div>
+      <h2>Blackjack Reversal</h2>
+      <div class="badge-row">
+        <span class="tag">8-deck shoe</span>
+        <span class="tag">5 reversals</span>
+        <span class="tag">Free-choice betting</span>
+      </div>
+      <p>Bet whatever you're comfortable with, call a Reversal to make the dealer play first, and settle in for a full session. The table as it's always been — unchanged.</p>
+      <span class="cta">Play the Original →</span>
+    </a>
+
+    <a class="game-card half" href="./blackjack-reversal-halfbank.html">
+      <div class="kicker">Blackjack — The Variant</div>
+      <h2 class="violet">Half-Bank Mode</h2>
+      <div class="badge-row">
+        <span class="tag">Mandatory 50% bet</span>
+        <span class="tag">Full-shoe days</span>
+        <span class="tag">Monthly leaderboard</span>
+      </div>
+      <p>Every bet is forced to half your bankroll, rounded to keep a double always in reach. No easing off — win big or go bankrupt fast. Higher stakes, higher swing.</p>
+      <span class="cta">Play Half-Bank →</span>
+    </a>
+
+    <a class="game-card" href="./bj-tournament/index.html">
+      <div class="kicker">Blackjack — Live Table</div>
+      <h2>Table VII Tournament</h2>
+      <div class="badge-row">
+        <span class="tag">Play the field</span>
+        <span class="tag">Up to 7 seats</span>
+        <span class="tag">Escalating blinds</span>
+      </div>
+      <p>Everyone plays against each other, not the house — biggest bank at the end wins. Built for a real table, real chips, and a dealer button that rotates.</p>
+      <span class="cta">Run the Tournament →</span>
+    </a>
+
+    <a class="game-card poker" href="./poker/index.html">
+      <div class="kicker">Poker — Live Table</div>
+      <h2 class="accent">Table VII Poker</h2>
+      <div class="badge-row">
+        <span class="tag">Blind clock</span>
+        <span class="tag">Chip tracker</span>
+        <span class="tag">Payout calculator</span>
+      </div>
+      <p>Cards are dealt live at the table — this just runs the clock, tracks every stack, and works out the payout split when the last hand's done.</p>
+      <span class="cta">Run Poker Night →</span>
+    </a>
+  </div>
+
+  <div class="coming-soon">
+    More tables are on the way — <b>this hub will grow</b> as new variants launch, all under one roof.
+  </div>
+
+  <div class="legal-link-row">
+    <a href="./reversal-system-legal-review.html" class="legal-link">📄 System design &amp; proposal — for legal review (covers both Original and Half-Bank modes)</a>
+  </div>
+
+  <footer>© <span id="copyYear"></span> AI&amp;I. All rights reserved. Games <span class="flipR">R</span> Us.</footer>
+</div>
+
+<script>
+(function(){
+  'use strict';
+  var LS_THEME = 'bjr_hub_theme';
+  var root = document.documentElement;
+  var t = localStorage.getItem(LS_THEME) || 'dark';
+  root.setAttribute('data-theme', t);
+  document.getElementById('themeBtn').addEventListener('click', function(){
+    var cur = root.getAttribute('data-theme');
+    var next = cur === 'dark' ? 'light' : 'dark';
+    root.setAttribute('data-theme', next);
+    try{ localStorage.setItem(LS_THEME, next); }catch(e){}
+  });
+  document.getElementById('copyYear').textContent = new Date().getFullYear();
+})();
+</script>
+</body>
+</html>

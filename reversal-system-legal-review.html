@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI &amp; I — Games R Us — System Design for Legal Review</title>
+<style>
+:root{
+  --gold:#f0c34d; --accent:#3ec6e0; --violet:#a473ff;
+  --danger:#e0645a; --good:#4fbf6b; --warn:#f0a84d;
+}
+html[data-theme="dark"]{
+  --bg-0:#07050f; --bg-1:#0e0a1e; --panel:#151129; --panel-2:#100c20;
+  --line:rgba(240,195,77,0.25); --text:#f1eef8; --text-dim:rgba(241,238,248,0.62);
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  font-family:'Segoe UI',Arial,sans-serif; color:var(--text); line-height:1.7;
+  background:
+    radial-gradient(ellipse 900px 600px at 15% -10%, rgba(164,115,255,0.22), transparent 60%),
+    radial-gradient(ellipse 900px 700px at 90% 5%, rgba(62,198,224,0.16), transparent 55%),
+    linear-gradient(180deg, var(--bg-1), var(--bg-0) 55%);
+  background-attachment:fixed;
+}
+.wrap{ max-width:880px; margin:0 auto; padding:40px 22px 90px; }
+
+.masthead{ text-align:center; margin-bottom:10px; }
+.masthead .ai{ font-family:Georgia,serif; font-style:italic; font-weight:700; font-size:26px; color:var(--gold); }
+.masthead .gru{ font-size:12px; font-weight:800; letter-spacing:3px; color:var(--accent); text-transform:uppercase; margin-top:2px; }
+.masthead h1{ font-family:Georgia,serif; font-style:italic; font-size:clamp(24px,5vw,36px); margin:18px 0 6px;
+  background:linear-gradient(95deg,var(--gold),var(--accent) 55%,var(--violet)); -webkit-background-clip:text; background-clip:text; color:transparent; }
+.masthead .sub{ font-size:12.5px; letter-spacing:1px; color:var(--text-dim); text-transform:uppercase; }
+.meta-row{ display:flex; justify-content:center; gap:18px; flex-wrap:wrap; font-size:11px; color:var(--text-dim); margin-top:14px; letter-spacing:0.5px; }
+.meta-row b{ color:var(--text); }
+
+.notice{
+  border:1px solid rgba(224,100,90,0.5); background:rgba(224,100,90,0.09); border-radius:14px;
+  padding:18px 20px; margin:28px 0; font-size:13.5px;
+}
+.notice .head{ font-weight:800; color:var(--danger); font-size:12px; letter-spacing:1.5px; text-transform:uppercase; margin-bottom:8px; }
+
+.toc{ background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:20px 24px; margin:28px 0; }
+.toc h3{ margin:0 0 10px; font-size:13px; letter-spacing:2px; text-transform:uppercase; color:var(--gold); }
+.toc ol{ margin:0; padding-left:20px; font-size:13.5px; }
+.toc li{ margin-bottom:5px; }
+.toc a{ color:var(--text); text-decoration:none; border-bottom:1px dotted var(--line); }
+.toc a:hover{ color:var(--accent); }
+
+section{ margin:44px 0; }
+h2{ font-family:Georgia,serif; font-style:italic; font-size:23px; color:var(--gold); border-bottom:1px solid var(--line); padding-bottom:10px; margin-bottom:16px; }
+h2 .n{ color:var(--text-dim); font-style:normal; font-size:15px; margin-right:8px; }
+h3{ font-size:16px; color:var(--accent); margin:22px 0 8px; }
+p{ font-size:14.5px; color:var(--text-dim); margin:0 0 12px; }
+p b, li b{ color:var(--text); }
+ul, ol{ font-size:14.5px; color:var(--text-dim); }
+li{ margin-bottom:6px; }
+
+.status-tag{ display:inline-block; font-size:10px; font-weight:800; letter-spacing:1px; text-transform:uppercase; padding:4px 10px; border-radius:20px; margin-bottom:14px; }
+.status-live{ background:rgba(79,191,107,0.15); color:var(--good); border:1px solid rgba(79,191,107,0.4); }
+.status-proposed{ background:rgba(240,168,77,0.15); color:var(--warn); border:1px solid rgba(240,168,77,0.4); }
+
+.flag{
+  border-left:3px solid var(--danger); background:rgba(224,100,90,0.07); border-radius:0 10px 10px 0;
+  padding:12px 16px; margin:14px 0; font-size:13.5px;
+}
+.flag .flag-head{ font-weight:800; color:var(--danger); font-size:11px; letter-spacing:1px; text-transform:uppercase; margin-bottom:5px; }
+
+table{ width:100%; border-collapse:collapse; margin:14px 0; font-size:13.5px; }
+th, td{ text-align:left; padding:9px 10px; border-bottom:1px solid var(--line); }
+th{ color:var(--gold); font-size:11px; letter-spacing:1px; text-transform:uppercase; }
+td{ color:var(--text-dim); }
+td b{ color:var(--text); }
+
+pre{
+  background:var(--panel-2); border:1px solid var(--line); border-radius:12px; padding:16px 18px;
+  overflow-x:auto; font-size:12.5px; line-height:1.55; color:#c9e8ff;
+}
+code{ font-family:'Courier New',monospace; }
+.code-label{ font-size:10.5px; letter-spacing:1px; text-transform:uppercase; color:var(--text-dim); margin-bottom:6px; }
+.illustrative{ font-size:11px; color:var(--warn); font-style:italic; margin-top:6px; }
+
+.qa-block{ background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:18px 20px; margin:16px 0; }
+.qa-block .q{ font-weight:700; color:var(--text); font-size:14px; margin-bottom:6px; }
+
+footer{ text-align:center; font-size:11px; color:var(--text-dim); margin-top:60px; letter-spacing:0.5px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="masthead">
+    <div class="ai">AI &amp; I</div>
+    <div class="gru">Games R Us</div>
+    <h1>Blackjack Reversal — Proposed System Design</h1>
+    <div class="sub">Prepared for legal / regulatory review</div>
+    <div class="meta-row">
+      <span><b>Prepared for:</b> outside counsel review</span>
+      <span><b>Status:</b> not built, not launched, private repository</span>
+      <span><b>Purpose:</b> full-idea capture for a go/no-go legal opinion</span>
+    </div>
+  </div>
+
+  <div class="notice">
+    <div class="head">Read this first</div>
+    This document describes the founder's complete idea for a paid membership, prize-pool, and leaderboard
+    system layered on top of a browser-based blackjack game. <b>None of the paid-membership, prize-payout,
+    or KYC features described below have been built.</b> They are documented here — in full, without omission
+    or reinterpretation — specifically so counsel can evaluate the legality of the concept, in whole or in
+    part, before any of it is implemented. Everything under "Section 1" is already live and does not involve
+    real money. Everything from Section 2 onward is a proposal only.
+  </div>
+
+  <div class="toc">
+    <h3>Contents</h3>
+    <ol>
+      <li><a href="#s1">What already exists today (live, free, no money involved)</a></li>
+      <li><a href="#s2">The proposed idea, in the founder's own words</a></li>
+      <li><a href="#s3">Proposed membership &amp; fee structure</a></li>
+      <li><a href="#s4">Proposed prize pool &amp; leaderboard structure</a></li>
+      <li><a href="#s5">Proposed identity verification (KYC)</a></li>
+      <li><a href="#s6">Proposed payments &amp; backend infrastructure</a></li>
+      <li><a href="#s7">Illustrative, non-functional code sketches</a></li>
+      <li><a href="#s8">Open questions the founder would like counsel's view on</a></li>
+      <li><a href="#s9">Why AI declined to build the items in Sections 3–6</a></li>
+    </ol>
+  </div>
+
+  <section id="s1">
+    <h2><span class="n">1.</span>What already exists today</h2>
+    <span class="status-tag status-live">LIVE — NO MONEY INVOLVED</span>
+    <p>Two playable, single-file browser games exist today in a private repository, plus a landing/hub page. No account system, no payments, no prizes, no personal data collection beyond what a browser stores locally on the player's own device.</p>
+    <table>
+      <tr><th>File</th><th>What it is</th></tr>
+      <tr><td><b>index.html</b> (hub)</td><td>Static landing page linking to both game variants.</td></tr>
+      <tr><td><b>blackjack-reversal.html</b></td><td>The original game. Free-choice betting, 8-deck shoe, 5 "Reversal" tokens per shoe, cut-card reshuffle, local reset counter, local monthly leaderboard (device-only, no fee, no prize).</td></tr>
+      <tr><td><b>blackjack-reversal-halfbank.html</b></td><td>A variant where every bet is forced to 50% of the player's bankroll (rounded to preserve a double-down), full-shoe play to 0 cards, same local-only reset counter and leaderboard.</td></tr>
+    </table>
+    <p>All bankroll, reset count, and leaderboard data is stored in the player's own browser (<code>localStorage</code>). Nothing is transmitted to a server. Nothing costs money. Nothing is paid out.</p>
+  </section>
+
+  <section id="s2">
+    <h2><span class="n">2.</span>The proposed idea, in the founder's own words</h2>
+    <span class="status-tag status-proposed">PROPOSED — NOT BUILT</span>
+    <p>Below is a faithful, non-interpreted restatement of the concept as the founder described it across several planning sessions. It is organized for readability but no substantive detail has been added, removed, or reframed.</p>
+    <ul>
+      <li>Players would be able to create a <b>profile</b> (name/avatar, no minors, age-gated).</li>
+      <li>Free play would remain available with no profile and no fee — practice only, not eligible for any leaderboard or prize.</li>
+      <li>To be eligible for the leaderboard and prizes, a player would pay a <b>recurring membership fee</b> (the founder proposed figures ranging from $10/month to $999/month across different conversations — see Section 3).</li>
+      <li>Each month, a percentage of collected membership revenue (the founder proposed <b>50%</b>) would be paid out to the top 3 ranked players for that month, split roughly 50% / 30% / 20% across 1st / 2nd / 3rd place.</li>
+      <li>Ranking would be primarily by <b>highest bankroll</b>, with a secondary "fewest bankroll resets" concept the founder also wanted considered as an alternative or supplementary metric — the founder was explicit that a player with more resets should <i>rank behind</i> a player with fewer resets even if the more-reset player has a higher bankroll, and asked for a "reset ribbon" (not a trophy) to visually mark resets as a negative indicator rather than an achievement.</li>
+      <li>Separately, the founder proposed an <b>all-time leaderboard</b> with a grand prize for whoever holds the top 3 all-time spots as of a fixed future date (founder proposed launch around September 2026, grand-prize date around September 2027) — potential prizes discussed included a trip for two to the Caribbean or Las Vegas (~$5,000 value) for 1st, a smaller cash-value prize for 2nd (~$2,500), and a gift card (e.g., a large retailer) for 3rd (~$1,000). The founder was explicit these were placeholder ideas, not final.</li>
+      <li>The founder discussed requiring a lightweight <b>identity check ("quick KYC")</b> only for players who opt in to be eligible for a top-3 prize payout, not for all paying members — see Section 5.</li>
+      <li>The founder discussed <b>PayPal and cryptocurrency</b> as candidate payment rails, and separately raised the idea of eventually building a proprietary backend ("not relying on anyone else's infrastructure") for both collecting membership fees and issuing payouts.</li>
+      <li>The founder was explicit that <b>no refunds</b> would be offered under this proposed structure (e.g., joining on day 29 of a billing month and requesting a refund on day 31 would not be honored).</li>
+      <li>The founder wants this system layered onto <i>both</i> game variants (Original and Half-Bank), each with its own separate leaderboard.</li>
+    </ul>
+  </section>
+
+  <section id="s3">
+    <h2><span class="n">3.</span>Proposed membership &amp; fee structure</h2>
+    <span class="status-tag status-proposed">PROPOSED — NOT BUILT</span>
+    <table>
+      <tr><th>Tier</th><th>Cost</th><th>What it would unlock</th></tr>
+      <tr><td><b>Free / Practice</b></td><td>$0</td><td>Full access to gameplay. No leaderboard eligibility. No prize eligibility.</td></tr>
+      <tr><td><b>Paid Membership</b></td><td>Founder proposed figures ranged between <b>$10/month</b> and <b>$999/month</b> in different conversations — not settled</td><td>Leaderboard eligibility (monthly + all-time). Prize eligibility if opted into KYC.</td></tr>
+    </table>
+    <p>The founder has not settled on a single price point and has explicitly flagged this as an open question rather than a firm decision (see Section 8).</p>
+  </section>
+
+  <section id="s4">
+    <h2><span class="n">4.</span>Proposed prize pool &amp; leaderboard structure</h2>
+    <span class="status-tag status-proposed">PROPOSED — NOT BUILT</span>
+    <h3>Monthly prize pool (proposed)</h3>
+    <p>50% of that month's total membership revenue would be distributed to the top 3 ranked paying members for that month, using a worked example the founder gave at a hypothetical 1,000 paying members and a hypothetical monthly price point:</p>
+    <table>
+      <tr><th>Rank</th><th>Proposed split of the 50% prize pool</th></tr>
+      <tr><td>1st place</td><td>50% of the pool</td></tr>
+      <tr><td>2nd place</td><td>30% of the pool</td></tr>
+      <tr><td>3rd place</td><td>20% of the pool</td></tr>
+    </table>
+    <h3>All-time / annual grand prize (proposed)</h3>
+    <table>
+      <tr><th>Rank</th><th>Proposed prize (placeholder values, not final)</th></tr>
+      <tr><td>1st place</td><td>Trip for 2 — Caribbean or Las Vegas, ~$5,000 value, all expenses paid</td></tr>
+      <tr><td>2nd place</td><td>~$2,500 (form not decided — cash vs. voucher)</td></tr>
+      <tr><td>3rd place</td><td>~$1,000 gift card (e.g., a major retailer)</td></tr>
+    </table>
+    <h3>Ranking metric (proposed, unresolved)</h3>
+    <p>The founder wants ranking to reward players who preserve their bankroll rather than simply hold the highest balance — i.e., a player with fewer bankroll "resets" should be able to outrank a player with a higher bankroll but more resets. The exact tie-breaking formula between "bankroll size" and "reset count" was not finalized by the founder and is flagged as an open question in Section 8.</p>
+  </section>
+
+  <section id="s5">
+    <h2><span class="n">5.</span>Proposed identity verification (KYC)</h2>
+    <span class="status-tag status-proposed">PROPOSED — NOT BUILT</span>
+    <ul>
+      <li>KYC would only be triggered for a player who (a) opts in, and (b) is selected as a top-3 finisher eligible for a payout.</li>
+      <li>The founder's stated intent is to <i>not</i> collect payment/banking information as part of KYC itself — only identity/age verification, with payout details collected separately at the time a prize is actually issued.</li>
+      <li>The founder specified <b>no players under 18</b>, consistent with general gambling-association age norms the founder referenced (without citing a specific jurisdiction's statute).</li>
+    </ul>
+    <div class="flag">
+      <div class="flag-head">Flag for counsel</div>
+      The founder has not identified which jurisdiction(s) this product would operate in or be offered to, which materially affects minimum age, licensing, and KYC/AML obligations.
+    </div>
+  </section>
+
+  <section id="s6">
+    <h2><span class="n">6.</span>Proposed payments &amp; backend infrastructure</h2>
+    <span class="status-tag status-proposed">PROPOSED — NOT BUILT</span>
+    <ul>
+      <li>Candidate payment rails discussed: <b>PayPal</b> and <b>cryptocurrency</b>.</li>
+      <li>Candidate backend/database: a hosted Postgres-style backend (the founder referenced a "Supabase-style" managed database and a "pro plan" for scaling), with the founder's stated long-term goal of eventually running a fully self-owned backend rather than depending on third-party payment or database infrastructure.</li>
+      <li>Distribution: the founder discussed eventually distributing outside of traditional app stores specifically to avoid third-party platform review of this feature set, and floated the idea of a browser-based / PWA-style distribution model instead.</li>
+    </ul>
+    <div class="flag">
+      <div class="flag-head">Flag for counsel</div>
+      Wanting to avoid app-store review is, on its own, a neutral business preference — but combined with the fee/prize structure above, it is worth counsel's attention as a fact pattern.
+    </div>
+  </section>
+
+  <section id="s7">
+    <h2><span class="n">7.</span>Illustrative, non-functional code sketches</h2>
+    <span class="status-tag status-proposed">FOR REFERENCE ONLY — NOT WORKING CODE</span>
+    <p>The snippets below exist only to make the proposed data shapes concrete for reviewers who read code. They are intentionally incomplete: no real payment call, no real payout call, no real KYC provider call, and no working submission handler. Nothing here is wired to move money or verify identity — every "TODO" marks a point where, if the design is approved, actual production code and a licensed payment/KYC vendor would need to be integrated.</p>
+
+    <div class="code-label">Sketch — proposed player profile record (illustrative shape only)</div>
+    <pre><code>{
+  "profileId": "string (system-generated)",
+  "displayName": "string, player-chosen",
+  "avatarUrl": "string, optional",
+  "ageConfirmed18Plus": false,     // TODO: real age-gate, not a checkbox
+  "membershipStatus": "free | paid",
+  "membershipRenewsOn": null,      // TODO: real billing provider integration
+  "kycStatus": "not_started | pending | verified",  // TODO: licensed KYC vendor
+  "payoutOptIn": false
+}</code></pre>
+    <div class="illustrative">Illustrative JSON shape only — no storage, validation, or transmission logic implemented.</div>
+
+    <div class="code-label">Sketch — proposed monthly ranking calculation (illustrative pseudocode only)</div>
+    <pre><code>// TODO: this is pseudocode, not implemented, and not connected to real accounts.
+function rankPlayersForMonth(players) {
+  // Proposed rule (UNRESOLVED — see Section 4 &amp; Section 8):
+  // fewer resets should be able to outrank a higher bankroll.
+  // Exact formula intentionally left undefined pending founder + counsel sign-off.
+  return players
+    .filter(p =&gt; p.membershipStatus === "paid")
+    .sort((a, b) =&gt; {
+      // placeholder comparison only — not a final ranking algorithm
+      return (b.bankroll - b.resets * WEIGHT) - (a.bankroll - a.resets * WEIGHT);
+    });
+}</code></pre>
+    <div class="illustrative">"WEIGHT" is undefined on purpose — this is a placeholder for a decision that hasn't been made, not a working formula.</div>
+
+    <div class="code-label">Sketch — proposed membership signup screen (visual layout only, no payment logic)</div>
+    <pre><code>&lt;form&gt;
+  &lt;h2&gt;Create your profile&lt;/h2&gt;
+  &lt;input type="text" placeholder="Display name" /&gt;
+  &lt;input type="checkbox" /&gt; I confirm I am 18 years or older
+  &lt;button type="button"&gt;
+    &lt;!-- TODO: no payment processor wired up. Placeholder only. --&gt;
+    Continue to membership (price TBD)
+  &lt;/button&gt;
+&lt;/form&gt;</code></pre>
+    <div class="illustrative">Static layout only — the button does nothing. No payment processor, no backend call.</div>
+  </section>
+
+  <section id="s8">
+    <h2><span class="n">8.</span>Open questions for counsel</h2>
+    <div class="qa-block">
+      <div class="q">1. Does this structure constitute gambling, a lottery, or a game of skill under the laws of the jurisdiction(s) where it would be offered?</div>
+      <p>The founder has not identified a target jurisdiction. Rules vary significantly by U.S. state and by country.</p>
+    </div>
+    <div class="qa-block">
+      <div class="q">2. Does collecting a recurring fee that funds a prize pool tied to game performance require a gaming license, sweepstakes registration, or other regulatory approval — regardless of how the entry fee is framed (e.g., as a "membership")?</div>
+    </div>
+    <div class="qa-block">
+      <div class="q">3. What KYC/AML obligations would attach given the proposed use of PayPal and/or cryptocurrency for both collection and payout, and does the "prize" nature of payouts change those obligations versus a normal subscription business?</div>
+    </div>
+    <div class="qa-block">
+      <div class="q">4. Would a "no refunds, ever" policy be enforceable given the payment structure described, and does it change the regulatory picture?</div>
+    </div>
+    <div class="qa-block">
+      <div class="q">5. Is there a version of this idea (e.g., free-to-enter, no purchase necessary, or a pure skill-based structure with no entry fee) that avoids the concerns above while preserving the founder's core goal of a competitive leaderboard with real prizes?</div>
+    </div>
+  </section>
+
+  <section id="s9">
+    <h2><span class="n">9.</span>Why AI declined to build the items in Sections 3–6</h2>
+    <p>The AI assistant that helped build the two live games (Section 1) declined to write the actual working payment, payout, or KYC code for the proposal in Sections 3–6, even privately, even for demonstration purposes only. Its stated reasoning: a functioning real-money payout system tied to game performance is the same artifact regardless of audience size, and it isn't in a position to judge whether the design is lawful in the founder's jurisdiction. This document was produced instead, at the founder's request, specifically so that judgment call could be made by qualified counsel before anything gets built.</p>
+  </section>
+
+  <footer>
+    Prepared by AI &amp; I — Games R Us internal tooling &nbsp;•&nbsp; Confidential — not for external distribution &nbsp;•&nbsp; Repository remains private
+  </footer>
+
+</div>
+</body>
+</html>
