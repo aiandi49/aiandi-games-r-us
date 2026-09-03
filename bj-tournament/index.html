@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
@@ -1098,7 +1098,7 @@ function showRulesPage(which){
 }
 
 (function initTheme(){
-  var t = localStorage.getItem('bjtourn_theme') || 'light';
+  var t = localStorage.getItem('bjtourn_theme') || 'dark';
   document.documentElement.setAttribute('data-theme', t);
   document.getElementById('themeBtn').textContent = t==='dark' ? '☀ Theme' : '🌙 Theme';
 })();
