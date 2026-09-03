@@ -11,6 +11,7 @@
   --violet:#a473ff; --violet-glow:rgba(164,115,255,0.5);
   --danger:#e0645a; --good:#4fbf6b;
   --chip-white:#f4f1e8; --chip-red:#c23b3b; --chip-green:#2f8f4e; --chip-black:#232323;
+  --dark-text:#f1eef8; --dark-text-dim:rgba(241,238,248,0.62);
 }
 html[data-theme="dark"]{
   --bg-0:#07050f; --bg-1:#0e0a1e; --panel:#151129; --panel-2:#100c20;
@@ -74,36 +75,70 @@ body{
 .timer-controls button{ background:none; border:1px solid var(--line); color:var(--text-dim); border-radius:6px; padding:2px 6px; font-size:9px; cursor:pointer; }
 .timer-controls button:hover{ color:var(--gold); border-color:var(--gold); }
 
-.felt{ position:relative; border-radius:26px; padding:18px 14px 20px;
-  background:radial-gradient(ellipse at 50% 0%, var(--felt-1), var(--felt-3) 75%, var(--felt-2) 100%);
-  border:6px solid #24122f; box-shadow:0 20px 50px rgba(0,0,0,0.5), inset 0 0 70px rgba(0,0,0,0.4);
-  margin-bottom:14px; overflow:hidden; }
-.felt-rules{ text-align:center; font-size:9px; letter-spacing:1.6px; text-transform:uppercase; color:rgba(240,195,77,0.65); margin-bottom:12px; line-height:1.9; }
+.table-oval-wrap{ margin-bottom:14px; }
+.table-rail{
+  position:relative; padding:16px; border-radius:999px;
+  background:linear-gradient(180deg, #2a1a42 0%, #180d28 55%, #0a0514 100%);
+  box-shadow:inset 0 4px 14px rgba(255,255,255,0.08), inset 0 -8px 20px rgba(0,0,0,0.5), 0 20px 50px rgba(0,0,0,0.55);
+}
+.table-inlay{
+  border-radius:999px; border:2px solid var(--gold); padding:8px; height:100%;
+  box-shadow:0 0 16px rgba(240,195,77,0.35), inset 0 0 24px rgba(240,195,77,0.08);
+}
+.felt{ position:relative; border-radius:999px; padding:18px 14px 20px; height:520px;
+  background:radial-gradient(ellipse at 50% 20%, var(--felt-1), var(--felt-3) 75%, var(--felt-2) 100%);
+  box-shadow:inset 0 10px 40px rgba(0,0,0,0.5); overflow:visible; }
+@media (max-width:900px){ .felt{ height:660px; } }
+@media (max-width:560px){ .felt{ height:800px; } }
+.felt-rules{ text-align:center; font-size:9px; letter-spacing:1.6px; text-transform:uppercase; color:var(--dark-text-dim); margin-bottom:12px; line-height:1.9; position:relative; z-index:3; }
 .felt-rules b{ color:var(--gold); }
+@media (max-width:560px){ .felt-rules{ font-size:8px; line-height:1.6; padding:0 30px; } }
 
-.zone{ display:flex; flex-direction:column; align-items:center; gap:6px; padding:6px 0 14px; position:relative; }
-.zone-label{ font-size:9.5px; letter-spacing:2.5px; text-transform:uppercase; color:var(--text-dim); }
-.cards{ display:flex; min-height:78px; }
-.card{ width:48px; height:68px; border-radius:7px; background:#f8f4e8; border:1px solid rgba(0,0,0,0.25);
-  display:flex; flex-direction:column; align-items:center; justify-content:center; font-weight:800; font-size:17px;
-  box-shadow:0 4px 10px rgba(0,0,0,.4); margin-left:-14px; position:relative; animation:dealIn .32s ease both; }
+.zone{ display:flex; flex-direction:column; align-items:center; gap:6px; padding:2px 0 6px; position:relative; z-index:3; }
+.zone-label{ font-size:9.5px; letter-spacing:2.5px; text-transform:uppercase; color:var(--dark-text-dim); }
+.cards{ display:flex; min-height:60px; }
+.card{ width:40px; height:56px; border-radius:6px; background:#f8f4e8; border:1px solid rgba(0,0,0,0.25);
+  display:flex; flex-direction:column; align-items:center; justify-content:center; font-weight:800; font-size:14px;
+  box-shadow:0 4px 10px rgba(0,0,0,.4); margin-left:-12px; position:relative; animation:dealIn .32s ease both; }
 .card:first-child{ margin-left:0; }
 @keyframes dealIn{ from{ opacity:0; transform:translateY(-18px) rotate(-6deg) scale(0.85);} to{ opacity:1; transform:translateY(0) rotate(0) scale(1);} }
 .card.red{ color:#c23b3b; } .card.black{ color:#1c1c1c; }
 .card.back{ background:repeating-linear-gradient(45deg, rgba(164,115,255,0.35) 0 4px, rgba(62,198,224,0.3) 4px 8px, rgba(240,195,77,0.3) 8px 12px);
   border:1px solid rgba(240,195,77,.55); }
 .card.back .mark{ font-family:Georgia,serif; font-style:italic; font-weight:800; font-size:11px; color:var(--gold); background:rgba(10,6,20,0.55); border-radius:6px; padding:2px 5px; }
-.hand-total{ font-size:11px; font-weight:700; color:var(--text); background:rgba(0,0,0,0.28); border-radius:8px; padding:2px 8px; letter-spacing:0.5px; }
+.hand-total{ font-size:11px; font-weight:700; color:var(--dark-text); background:rgba(0,0,0,0.28); border-radius:8px; padding:2px 8px; letter-spacing:0.5px; }
+
+/* ---------------- oval seating arc ---------------- */
+.oval-seats{ position:absolute; inset:0; z-index:4; }
+.oval-seat{ position:absolute; width:132px; margin-left:-66px; margin-top:-50px; transform:none; }
+.oval-seat.hero{ width:150px; margin-left:-75px; }
+.pos-you{ top:94%; left:50%; }
+.pos-1{ top:82%; left:15%; }
+.pos-2{ top:46%; left:6%; }
+.pos-3{ top:12%; left:23%; }
+.pos-4{ top:12%; left:77%; }
+.pos-5{ top:46%; left:94%; }
+.pos-6{ top:82%; left:85%; }
+@media (max-width:900px){
+  .oval-seat{ width:104px; margin-left:-52px; margin-top:-42px; }
+  .oval-seat.hero{ width:120px; margin-left:-60px; }
+  .pos-1{ left:18%; } .pos-2{ left:8%; } .pos-3{ left:25%; }
+  .pos-4{ left:75%; } .pos-5{ left:92%; } .pos-6{ left:82%; }
+}
+@media (max-width:560px){
+  .oval-seat{ width:90px; margin-left:-45px; margin-top:-38px; }
+  .oval-seat.hero{ width:104px; margin-left:-52px; }
+  .pos-1{ top:82%; left:20%; } .pos-2{ top:50%; left:9%; } .pos-3{ top:24%; left:26%; }
+  .pos-4{ top:24%; left:74%; } .pos-5{ top:50%; left:91%; } .pos-6{ top:82%; left:80%; }
+}
 .hand-total.bj{ color:var(--good); }
 
 .seat-row{ display:flex; gap:12px; flex-wrap:wrap; justify-content:center; padding-top:6px; }
 .table-row{ display:flex; gap:16px; justify-content:center; align-items:flex-start; padding-top:6px; flex-wrap:wrap; }
-.table-row .handbox.you{ order:2; box-shadow:0 0 0 1px var(--accent), 0 0 20px rgba(62,198,224,0.3); }
-.table-row .handbox.neighbor{ order:1; opacity:0.96; }
-.table-row .handbox.neighbor.right{ order:3; }
+.handbox.you{ box-shadow:0 0 0 1px var(--accent), 0 0 20px rgba(62,198,224,0.3); }
 .leaderboard-title{ text-align:center; font-size:9px; letter-spacing:2px; text-transform:uppercase; color:var(--text-dim); margin:16px 0 8px; }
 .leaderboard-row{ display:flex; gap:8px; justify-content:center; flex-wrap:wrap; }
-.lb-chip{ display:flex; align-items:center; gap:6px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.12); border-radius:20px; padding:5px 12px 5px 5px; font-size:11px; }
+.lb-chip{ display:flex; align-items:center; gap:6px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.12); border-radius:20px; padding:5px 12px 5px 5px; font-size:11px; color:var(--dark-text); }
 .lb-chip .avatar-sm{ width:22px; height:22px; font-size:9px; cursor:default; }
 .lb-chip .status{ font-weight:700; }
 .lb-chip .status.in{ color:var(--good); }
@@ -123,13 +158,13 @@ body{
 .results-row .delta.lose{ color:var(--danger); font-weight:700; }
 .results-row .delta.push{ color:var(--text-dim); }
 .handbox{ display:flex; flex-direction:column; align-items:center; gap:6px; padding:10px 10px 8px; border-radius:14px;
-  background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); min-width:118px; transition:all .2s ease; }
+  background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); width:100%; transition:all .2s ease; }
 .handbox.onbutton{ box-shadow:0 0 0 1px var(--gold), 0 0 18px rgba(240,195,77,0.35); border-color:var(--gold); }
 .handbox.bj{ box-shadow:0 0 0 1px var(--good), 0 0 18px rgba(79,191,107,0.35); border-color:var(--good); }
 .handbox.busted{ opacity:0.4; }
 .hb-head{ display:flex; align-items:center; gap:6px; }
 .avatar-sm{ width:26px; height:26px; border-radius:7px; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:800; color:#0a0e14; cursor:pointer; background-size:cover; background-position:center; border:1px solid rgba(255,255,255,0.35); flex:none; }
-.hb-name{ font-size:12px; font-weight:700; }
+.hb-name{ font-size:12px; font-weight:700; color:var(--dark-text); }
 .button-token{ width:14px; height:14px; border-radius:50%; background:radial-gradient(circle at 35% 30%, #ffe9a8, var(--gold)); box-shadow:0 0 6px rgba(240,195,77,0.7); flex:none; }
 .hb-cards{ display:flex; min-height:0; }
 .hb-cards .card{ width:30px; height:42px; font-size:11px; border-radius:5px; margin-left:-10px; }
@@ -177,6 +212,7 @@ body{
 .rules-card h3{ margin:0 0 8px; font-size:14px; letter-spacing:1px; text-transform:uppercase; color:var(--gold); text-align:center; }
 .rules-card p, .rules-card li{ font-size:12.5px; line-height:1.75; color:var(--text-dim); }
 .pricing-note{ font-size:12px; color:var(--text-dim); text-align:center; }
+.handbox .pricing-note, .lb-chip .pricing-note{ color:var(--dark-text-dim); }
 
 .backlink{ text-align:center; margin:18px 0 0; }
 .backlink a{ font-size:11px; letter-spacing:0.5px; color:var(--text-dim); text-decoration:none; border-bottom:1px dotted var(--line); padding-bottom:2px; }
@@ -276,20 +312,25 @@ footer .flipR{ display:inline-block; transform:scaleX(-1); }
     <div class="stat-card"><div class="l">Dealer Earnings</div><div class="v" id="dealerEarnings">$0</div></div>
   </div>
 
-  <div class="felt">
-    <div class="felt-rules">
-      <b>Natural blackjack (first 2 cards) pays 3 to 1</b> &nbsp;•&nbsp; <b>dealer must draw to 16 &amp; stand on all 17s</b><br>
-      <b id="minBetFeltLabel">round 1 — $1 minimum, both dealer cards hidden</b>
-    </div>
+  <div class="table-oval-wrap">
+    <div class="table-rail">
+      <div class="table-inlay">
+        <div class="felt">
+          <div class="felt-rules">
+            <b>Natural blackjack (first 2 cards) pays 3 to 1</b> &nbsp;•&nbsp; <b>dealer must draw to 16 &amp; stand on all 17s</b><br>
+            <b id="minBetFeltLabel">round 1 — $1 minimum, both dealer cards hidden</b>
+          </div>
 
-    <div class="zone">
-      <div class="zone-label">Dealer</div>
-      <div class="cards" id="dealerCards"></div>
-      <div class="hand-total" id="dealerTotalDisplay">&nbsp;</div>
-    </div>
+          <div class="zone">
+            <div class="zone-label">Dealer</div>
+            <div class="cards" id="dealerCards"></div>
+            <div class="hand-total" id="dealerTotalDisplay">&nbsp;</div>
+          </div>
 
-    <div class="table-row" id="tableRow"></div>
-    <div class="leaderboard-row" id="leaderboardRow"></div>
+          <div class="oval-seats" id="ovalSeats"></div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <div class="msg-line" id="msgLine">Press Start Game to begin — everyone antes $1 for round 1.</div>
@@ -958,24 +999,21 @@ function handBoxHTML(p, extraClass){
 }
 
 function renderFelt(){
-  const you = state.players[0];
-  const left = state.players[6];
-  const right = state.players[1];
-  document.getElementById('tableRow').innerHTML =
-    handBoxHTML(left,'neighbor left') + handBoxHTML(you,'you') + handBoxHTML(right,'neighbor right');
-
-  const lb = document.getElementById('leaderboardRow');
-  lb.innerHTML = '';
-  [2,3,4,5].forEach(i=>{
-    const p = state.players[i];
-    const chip = document.createElement('div');
-    chip.className = 'lb-chip' + (i===state.buttonIndex?' onbutton':'');
-    chip.innerHTML =
-      '<div class="avatar-sm" style="background:'+(p.photo?'transparent':AVATAR_COLORS[i%AVATAR_COLORS.length])+(p.photo?';background-image:url('+p.photo+')':'')+'">'+(p.photo?'':p.name[0])+'</div>'+
-      '<span>'+p.name+'</span>'+
-      '<span class="status '+(p.busted?'bust':'in')+'">'+(p.busted?'BUST':'IN')+'</span>';
-    lb.appendChild(chip);
-  });
+  // players[0]=You, [1]=right neighbor(Riley), [2..5]=Morgan/Taylor/Casey/Jordan, [6]=left neighbor(Sam)
+  var slots = [
+    { pos:'pos-you', idx:0, hero:true },
+    { pos:'pos-1', idx:6 },
+    { pos:'pos-2', idx:2 },
+    { pos:'pos-3', idx:3 },
+    { pos:'pos-4', idx:4 },
+    { pos:'pos-5', idx:5 },
+    { pos:'pos-6', idx:1 }
+  ];
+  var wrap = document.getElementById('ovalSeats');
+  wrap.innerHTML = slots.map(function(slot){
+    var p = state.players[slot.idx];
+    return '<div class="oval-seat '+slot.pos+(slot.hero?' hero':'')+'">'+handBoxHTML(p, slot.hero?'you':'neighbor')+'</div>';
+  }).join('');
 }
 
 function triggerPhotoUpload(i){
