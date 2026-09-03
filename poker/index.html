@@ -93,10 +93,14 @@ body{
 .hand-log{ font-size:11.5px; color:var(--dark-text-dim); min-height:16px; max-width:340px; margin:0 auto; }
 .hand-log b{ color:var(--dark-text); }
 
-.card{ width:58px; height:82px; border-radius:8px; background:#f4f1e8; display:flex; flex-direction:column; align-items:center; justify-content:center;
-  font-weight:800; font-size:24px; box-shadow:0 3px 8px rgba(0,0,0,0.4); flex:none; }
+.card{ width:58px; height:82px; border-radius:8px; background:#f8f4e8; border:1px solid rgba(0,0,0,0.25); display:flex; flex-direction:column; align-items:center; justify-content:center;
+  font-weight:800; font-size:24px; box-shadow:0 3px 8px rgba(0,0,0,0.4); flex:none; animation:dealIn .32s ease both; }
+@keyframes dealIn{ from{ opacity:0; transform:translateY(-18px) rotate(-6deg) scale(0.85);} to{ opacity:1; transform:translateY(0) rotate(0) scale(1);} }
 .card.suit-s{ color:#232323; } .card.suit-h{ color:#d63b3b; } .card.suit-d{ color:#2172c9; } .card.suit-c{ color:#2a9d5c; }
-.card.back{ background:repeating-linear-gradient(135deg, var(--violet) 0 6px, var(--accent) 6px 12px); }
+.card.back{ background:repeating-linear-gradient(45deg, rgba(164,115,255,0.35) 0 4px, rgba(62,198,224,0.3) 4px 8px, rgba(240,195,77,0.3) 8px 12px);
+  border:1px solid rgba(240,195,77,.55); align-items:center; justify-content:center; }
+.card.back .mark{ font-family:Georgia,serif; font-style:italic; font-weight:800; font-size:11px; color:var(--gold); background:rgba(10,6,20,0.55); border-radius:6px; padding:2px 5px; }
+.card.mini.back .mark{ font-size:8px; padding:1px 4px; }
 .card.mini{ width:26px; height:37px; font-size:10px; border-radius:4px; }
 .card .suit{ font-size:20px; margin-top:-3px; }
 .card.mini .suit{ font-size:9px; }
@@ -947,7 +951,7 @@ footer .flipR{ display:inline-block; transform:scaleX(-1); }
 
   // ---------------- rendering ----------------
   function cardHTML(card, mini){
-    if(!card) return '<div class="card'+(mini?' mini':'')+' back"></div>';
+    if(!card) return '<div class="card'+(mini?' mini':'')+' back"><div class="mark">T7</div></div>';
     return '<div class="card'+(mini?' mini':'')+' suit-'+card.s+'">'+rankLabel(card.r)+'<span class="suit">'+SUIT_SYM[card.s]+'</span></div>';
   }
 
