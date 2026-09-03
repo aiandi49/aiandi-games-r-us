@@ -13,6 +13,10 @@ html[data-theme="dark"]{
   --bg-0:#07050f; --bg-1:#0e0a1e; --panel:#151129; --panel-2:#100c20;
   --line:rgba(240,195,77,0.25); --text:#f1eef8; --text-dim:rgba(241,238,248,0.62);
 }
+html[data-theme="light"]{
+  --bg-0:#f3eefb; --bg-1:#e9e0fa; --panel:#ffffff; --panel-2:#f6f2fc;
+  --line:rgba(140,90,190,0.3); --text:#160f28; --text-dim:rgba(22,15,40,0.65);
+}
 *{box-sizing:border-box;}
 html,body{margin:0;padding:0;}
 body{
@@ -24,6 +28,17 @@ body{
   background-attachment:fixed;
 }
 .wrap{ max-width:880px; margin:0 auto; padding:40px 22px 90px; }
+
+.topbar{ display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; margin-bottom:22px; }
+.topbtns{ display:flex; gap:6px; flex-wrap:wrap; }
+.iconbtn{ background:var(--panel); border:1px solid var(--line); color:var(--text); border-radius:9px; padding:8px 12px; font-size:11px; letter-spacing:0.5px; cursor:pointer; transition:all .15s ease; }
+.iconbtn:hover{ border-color:var(--gold); color:var(--gold); }
+.fontctl{ display:flex; align-items:center; gap:1px; background:var(--panel); border:1px solid var(--line); border-radius:9px; padding:3px; }
+.fontctl button{ background:none; border:none; color:var(--text); font-family:inherit; cursor:pointer; padding:6px 10px; border-radius:7px; font-size:11px; font-weight:700; line-height:1; }
+.fontctl button:hover{ color:var(--gold); }
+.fontctl button.active{ background:var(--panel-2); color:var(--gold); }
+.backlink-top a{ font-size:11px; letter-spacing:0.5px; color:var(--text-dim); text-decoration:none; border-bottom:1px dotted var(--line); padding-bottom:2px; }
+.backlink-top a:hover{ color:var(--gold); }
 
 .masthead{ text-align:center; margin-bottom:10px; }
 .masthead .ai{ font-family:Georgia,serif; font-style:italic; font-weight:700; font-size:26px; color:var(--gold); }
@@ -88,6 +103,18 @@ footer{ text-align:center; font-size:11px; color:var(--text-dim); margin-top:60p
 </head>
 <body>
 <div class="wrap">
+
+  <div class="topbar">
+    <div class="backlink-top"><a href="./index.html">← Back to the hub</a></div>
+    <div class="topbtns">
+      <button class="iconbtn" id="themeBtn">🌙 Theme</button>
+      <div class="fontctl" role="group" aria-label="Text size">
+        <button type="button" data-fs="sm" aria-label="Small text">A-</button>
+        <button type="button" data-fs="md" class="active" aria-label="Default text">A</button>
+        <button type="button" data-fs="lg" aria-label="Large text">A+</button>
+      </div>
+    </div>
+  </div>
 
   <div class="masthead">
     <div class="ai">AI &amp; I</div>
@@ -294,5 +321,38 @@ function rankPlayersForMonth(players) {
   </footer>
 
 </div>
+<script>
+(function(){
+  var root = document.documentElement;
+  var LS_THEME = 'legalreview_theme';
+  var t = 'light';
+  try{ t = localStorage.getItem(LS_THEME) || 'light'; }catch(e){}
+  root.setAttribute('data-theme', t);
+  document.getElementById('themeBtn').addEventListener('click', function(){
+    var next = root.getAttribute('data-theme')==='dark' ? 'light' : 'dark';
+    root.setAttribute('data-theme', next);
+    try{ localStorage.setItem(LS_THEME, next); }catch(e){}
+  });
+
+  var LS_FS = 'legalreview_fontsize';
+  var zoomMap = { sm:0.9, md:1, lg:1.15 };
+  function applyFs(size){
+    document.body.style.zoom = zoomMap[size] || 1;
+    document.querySelectorAll('.fontctl button').forEach(function(b){
+      b.classList.toggle('active', b.getAttribute('data-fs')===size);
+    });
+  }
+  var savedFs = 'md';
+  try{ savedFs = localStorage.getItem(LS_FS) || 'md'; }catch(e){}
+  applyFs(savedFs);
+  document.querySelectorAll('.fontctl button').forEach(function(b){
+    b.addEventListener('click', function(){
+      var size = b.getAttribute('data-fs');
+      applyFs(size);
+      try{ localStorage.setItem(LS_FS, size); }catch(e){}
+    });
+  });
+})();
+</script>
 </body>
 </html>
