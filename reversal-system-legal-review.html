@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -326,7 +326,7 @@ function rankPlayersForMonth(players) {
   var root = document.documentElement;
   var LS_THEME = 'legalreview_theme';
   var t = 'light';
-  try{ t = localStorage.getItem(LS_THEME) || 'light'; }catch(e){}
+  try{ t = localStorage.getItem(LS_THEME) || 'dark'; }catch(e){}
   root.setAttribute('data-theme', t);
   document.getElementById('themeBtn').addEventListener('click', function(){
     var next = root.getAttribute('data-theme')==='dark' ? 'light' : 'dark';

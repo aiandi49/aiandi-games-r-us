@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
@@ -492,7 +492,7 @@ footer .flipR{ display:inline-block; transform:scaleX(-1); }
 
   var root = document.documentElement;
   (function initTheme(){
-    var t = localStorage.getItem(LS_THEME) || 'light';
+    var t = localStorage.getItem(LS_THEME) || 'dark';
     root.setAttribute('data-theme', t);
   })();
   document.getElementById('themeBtn').addEventListener('click', function(){
