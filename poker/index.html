@@ -981,39 +981,61 @@ footer .flipR{ display:inline-block; transform:scaleX(-1); }
 
   function renderBoard(){
     var board = document.getElementById('board');
-    board.innerHTML = '';
+    var sig = JSON.stringify(state.community);
+    if(board.dataset.sig === sig) return;
+    board.dataset.sig = sig;
+    var html = '';
     for(var i=0;i<5;i++){
-      board.innerHTML += state.community[i] ? cardHTML(state.community[i]) : '<div class="card" style="opacity:0.15;background:transparent;box-shadow:none;border:1px dashed rgba(255,255,255,0.25);"></div>';
+      html += state.community[i] ? cardHTML(state.community[i]) : '<div class="card" style="opacity:0.15;background:transparent;box-shadow:none;border:1px dashed rgba(255,255,255,0.25);"></div>';
     }
+    board.innerHTML = html;
   }
 
   function renderSeats(){
     var wrap = document.getElementById('seats');
-    wrap.innerHTML = '';
+    if(state.seats.length===0){ wrap.innerHTML=''; return; }
     state.seats.forEach(function(seat, idx){
-      var div = document.createElement('div');
       var isTurn = state.started && !state.finished && idx===state.actingIndex && !seat.folded && !seat.eliminated;
-      div.className = 'seat pos-'+idx + (seat.isYou?' you':'') + (seat.folded?' folded':'') + (seat.eliminated?' out':'') + (isTurn?' turn':'');
       var color = avatarPalette[idx % avatarPalette.length];
       var showCards = seat.isYou || state.phase==='showdown';
-      var cardsHTML = seat.holeCards.length
-        ? seat.holeCards.map(function(c){ return cardHTML(showCards ? c : null, true); }).join('')
-        : '<div class="card mini back" style="opacity:0.15;"></div><div class="card mini back" style="opacity:0.15;"></div>';
-      div.innerHTML =
-        '<div class="seat-inner">' +
-          '<div class="seat-head">' +
-            (idx===state.buttonIndex ? '<div class="button-token">D</div>' : '') +
-            '<div class="avatar-sm" style="background:'+color+';">'+initials(seat.name)+'</div>' +
-            '<div class="seat-name">'+seat.name+'</div>' +
+
+      var div = document.getElementById('seatEl-'+seat.id);
+      if(!div){
+        div = document.createElement('div');
+        div.id = 'seatEl-'+seat.id;
+        div.innerHTML =
+          '<div class="seat-inner">' +
+            '<div class="seat-head">' +
+              '<span class="button-slot"></span>' +
+              '<div class="avatar-sm" style="background:'+color+';">'+initials(seat.name)+'</div>' +
+              '<div class="seat-name">'+seat.name+'</div>' +
+            '</div>' +
+            '<span class="turn-slot"></span>' +
+            '<div class="seat-cards"></div>' +
+            '<div class="seat-chips"></div>' +
+            '<span class="status-slot"></span>' +
           '</div>' +
-          (isTurn && seat.isYou ? '<div class="your-turn-badge">Your turn</div>' : '') +
-          '<div class="seat-cards">'+cardsHTML+'</div>' +
-          '<div class="seat-chips">$'+seat.chips.toLocaleString()+'</div>' +
-          (seat.folded ? '<div class="seat-status">Folded</div>' : '') +
-          (seat.allIn && !seat.folded ? '<div class="seat-status win">All-in</div>' : '') +
-        '</div>' +
-        (seat.betThisRound>0 ? '<div class="seat-bet">$'+seat.betThisRound+'</div>' : '');
-      wrap.appendChild(div);
+          '<span class="bet-slot"></span>';
+        wrap.appendChild(div);
+      }
+
+      div.className = 'seat pos-'+idx + (seat.isYou?' you':'') + (seat.folded?' folded':'') + (seat.eliminated?' out':'') + (isTurn?' turn':'');
+      div.querySelector('.button-slot').innerHTML = idx===state.buttonIndex ? '<div class="button-token">D</div>' : '';
+      div.querySelector('.turn-slot').innerHTML = (isTurn && seat.isYou) ? '<div class="your-turn-badge">Your turn</div>' : '';
+      div.querySelector('.seat-chips').textContent = '$'+seat.chips.toLocaleString();
+      div.querySelector('.status-slot').innerHTML = seat.folded ? '<div class="seat-status">Folded</div>' : (seat.allIn && !seat.folded ? '<div class="seat-status win">All-in</div>' : '');
+      div.querySelector('.bet-slot').innerHTML = seat.betThisRound>0 ? '<div class="seat-bet">$'+seat.betThisRound+'</div>' : '';
+
+      // only touch card markup (and retrigger the deal animation) when the
+      // actual cards being shown have changed -- not on every action
+      var cardsSig = JSON.stringify(seat.holeCards)+'|'+showCards;
+      if(div.dataset.cardsig !== cardsSig){
+        div.dataset.cardsig = cardsSig;
+        var cardsHTML = seat.holeCards.length
+          ? seat.holeCards.map(function(c){ return cardHTML(showCards ? c : null, true); }).join('')
+          : '<div class="card mini back" style="opacity:0.15;"></div><div class="card mini back" style="opacity:0.15;"></div>';
+        div.querySelector('.seat-cards').innerHTML = cardsHTML;
+      }
     });
   }
 
