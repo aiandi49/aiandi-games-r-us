@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="light">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
@@ -42,7 +42,7 @@ body{
 .swirl span:nth-child(3){ width:340px; height:340px; top:40%; left:60%; animation-duration:40s; }
 @keyframes drift{ 0%{ transform:rotate(0deg) scale(1);} 50%{ transform:rotate(180deg) scale(1.12);} 100%{ transform:rotate(360deg) scale(1);} }
 
-.wrap{ position:relative; z-index:1; max-width:1100px; margin:0 auto; padding:16px 14px 70px; }
+.wrap{ position:relative; z-index:1; max-width:1600px; margin:0 auto; padding:16px 14px 70px; }
 
 .topbar{ display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; margin-bottom:10px; }
 .brand{ display:flex; flex-direction:column; line-height:1.05; }
@@ -53,6 +53,10 @@ body{
 .topbtns{ display:flex; gap:6px; flex-wrap:wrap; }
 .iconbtn{ background:var(--panel); border:1px solid var(--line); color:var(--text); border-radius:9px; padding:8px 12px; font-size:11px; letter-spacing:0.5px; cursor:pointer; transition:all .15s ease; }
 .iconbtn:hover{ border-color:var(--gold); color:var(--gold); }
+.fontctl{ display:flex; align-items:center; gap:1px; background:var(--panel); border:1px solid var(--line); border-radius:9px; padding:3px; }
+.fontctl button{ background:none; border:none; color:var(--text); font-family:inherit; cursor:pointer; padding:6px 10px; border-radius:7px; font-size:11px; font-weight:700; line-height:1; }
+.fontctl button:hover{ color:var(--gold); }
+.fontctl button.active{ background:var(--panel-2); color:var(--gold); }
 
 .title-hero{ text-align:center; margin:6px 0 14px; }
 .title-hero h1{ font-family:Georgia,serif; font-style:italic; font-size:clamp(24px,5.5vw,36px); margin:0; letter-spacing:0.5px;
@@ -217,6 +221,13 @@ footer .flipR{ display:inline-block; transform:scaleX(-1); }
 .rules-page .warn{ background:rgba(224,80,62,0.12); border:1px solid rgba(224,80,62,0.4); border-radius:10px; padding:12px 14px; margin:14px 0; color:#ffb3a8; font-weight:600; font-size:13px; text-align:center; }
 .rules-page ul{ list-style:none; padding-left:0; }
 
+@media (min-width:900px){
+  .felt{ padding:26px 40px 32px; }
+  .table-row{ justify-content:space-between; gap:24px; }
+  .table-row .handbox{ flex:1 1 0; max-width:240px; }
+  .leaderboard-row{ justify-content:space-between; gap:16px; }
+  .leaderboard-row .lb-chip{ flex:1 1 0; justify-content:center; max-width:200px; }
+}
 @media (max-width:640px){
   .stat-strip{ grid-template-columns:repeat(2,1fr); }
   .actbtn{ flex:1 1 42%; }
@@ -240,6 +251,11 @@ footer .flipR{ display:inline-block; transform:scaleX(-1); }
     </div>
     <div class="topbtns">
       <button class="iconbtn" id="themeBtn">🌙 Theme</button>
+      <div class="fontctl" role="group" aria-label="Text size">
+        <button type="button" data-fs="sm" aria-label="Small text">A-</button>
+        <button type="button" data-fs="md" class="active" aria-label="Default text">A</button>
+        <button type="button" data-fs="lg" aria-label="Large text">A+</button>
+      </div>
       <button class="iconbtn" id="rulesBtn">📜 Rules Guide</button>
       <button class="iconbtn" id="setupBtn">⚙ Settings</button>
       <button class="iconbtn" id="endBtn">🏁 End Tournament</button>
@@ -1043,15 +1059,42 @@ function showRulesPage(which){
   document.getElementById('tabOnline').classList.toggle('active', which==='online');
 }
 
+(function initTheme(){
+  var t = localStorage.getItem('bjtourn_theme') || 'light';
+  document.documentElement.setAttribute('data-theme', t);
+  document.getElementById('themeBtn').textContent = t==='dark' ? '☀ Theme' : '🌙 Theme';
+})();
 document.getElementById('themeBtn').onclick = ()=>{
   const html = document.documentElement;
   const next = html.getAttribute('data-theme')==='dark' ? 'light' : 'dark';
   html.setAttribute('data-theme', next);
+  try{ localStorage.setItem('bjtourn_theme', next); }catch(e){}
   document.getElementById('themeBtn').textContent = next==='dark' ? '🌙 Theme' : '☀ Theme';
 };
 
 updateStartBankPreview();
 newTournament();
+
+(function(){
+  var LS_FS = 'bjtourn_fontsize';
+  var zoomMap = { sm:0.9, md:1, lg:1.15 };
+  function apply(size){
+    document.body.style.zoom = zoomMap[size] || 1;
+    document.querySelectorAll('.fontctl button').forEach(function(b){
+      b.classList.toggle('active', b.getAttribute('data-fs')===size);
+    });
+  }
+  var saved = 'md';
+  try{ saved = localStorage.getItem(LS_FS) || 'md'; }catch(e){}
+  apply(saved);
+  document.querySelectorAll('.fontctl button').forEach(function(b){
+    b.addEventListener('click', function(){
+      var size = b.getAttribute('data-fs');
+      apply(size);
+      try{ localStorage.setItem(LS_FS, size); }catch(e){}
+    });
+  });
+})();
 </script>
 </body>
 </html>
