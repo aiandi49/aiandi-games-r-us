@@ -179,6 +179,8 @@ body{
 .presetbtn:hover{ border-color:var(--gold); color:var(--gold); }
 
 .msg-line{ text-align:center; min-height:20px; font-size:12.5px; font-weight:600; color:var(--accent); margin:10px 0 4px; letter-spacing:0.3px; }
+.action-timer-row{ max-width:280px; margin:0 auto 10px; height:5px; background:var(--panel-2); border-radius:4px; overflow:hidden; }
+.action-timer-bar{ height:100%; background:linear-gradient(90deg,var(--good),var(--gold)); transition:width 1s linear; }
 
 .rules-card{ background:linear-gradient(180deg,var(--panel),var(--panel-2)); border:1px solid var(--line); border-radius:16px; padding:16px 16px 18px; margin-bottom:14px; }
 .rules-card h3{ margin:0 0 8px; font-size:14px; letter-spacing:1px; text-transform:uppercase; color:var(--gold); text-align:center; }
@@ -208,6 +210,17 @@ footer .flipR{ display:inline-block; transform:scaleX(-1); }
 .field-pair{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
 
 .showdown-row{ display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:10px; background:var(--panel-2); margin-bottom:7px; flex-wrap:wrap; }
+#showdownModal{ align-items:flex-start; overflow-y:auto; padding-top:0; }
+#showdownModal .modal{ max-width:900px; margin-top:12px; }
+.showdown-cards{ display:flex; gap:4px; }
+.prize-note{ font-size:10.5px; color:var(--text-dim); font-style:italic; }
+@media (min-width:760px){
+  #showdownList{ display:flex; flex-wrap:wrap; gap:10px; justify-content:center; }
+  .showdown-row{ flex:1 1 200px; max-width:220px; flex-direction:column; text-align:center; align-items:center; gap:6px; }
+  .showdown-row .nm{ font-size:14px; }
+  .showdown-row .showdown-cards{ justify-content:center; }
+  .showdown-row .hn{ font-size:12px; }
+}
 .showdown-row .nm{ font-weight:700; min-width:80px; }
 .showdown-row .hn{ color:var(--text-dim); font-size:11.5px; flex:1; min-width:120px; }
 .showdown-row.winner{ box-shadow:0 0 0 1px var(--good); }
@@ -863,6 +876,7 @@ footer .flipR{ display:inline-block; transform:scaleX(-1); }
     });
 
     var winners = {}; // seatId -> amount won
+    var uncalled = {}; // seatId -> amount that was an uncalled-bet return, not a contested win
     pots.forEach(function(pot){
       var elig = results.filter(function(r){ return pot.eligible.indexOf(r.seat.id)>=0; });
       if(elig.length===0) return;
@@ -874,6 +888,9 @@ footer .flipR{ display:inline-block; transform:scaleX(-1); }
       potWinners.forEach(function(r, i){
         var amt = share + (i===0 ? remainder : 0);
         winners[r.seat.id] = (winners[r.seat.id]||0) + amt;
+        if(pot.eligible.length===1){
+          uncalled[r.seat.id] = (uncalled[r.seat.id]||0) + amt;
+        }
       });
     });
 
@@ -882,27 +899,40 @@ footer .flipR{ display:inline-block; transform:scaleX(-1); }
       if(seat) seat.chips += winners[id];
     });
 
-    renderShowdown(results, winners);
+    renderShowdown(results, winners, uncalled);
+    render();
     save();
   }
 
-  function renderShowdown(results, winners){
+  function renderShowdown(results, winners, uncalled){
     var modal = document.getElementById('showdownModal');
     var list = document.getElementById('showdownList');
     list.innerHTML = '';
     results.sort(function(a,b){ return compareHands(b.ev,a.ev); });
     results.forEach(function(r){
       var won = winners[r.seat.id];
+      var uncalledAmt = uncalled[r.seat.id] || 0;
+      var contestedAmt = won ? won - uncalledAmt : 0;
       var row = document.createElement('div');
       row.className = 'showdown-row' + (won?' winner':'');
+      var prizeHTML = '';
+      if(contestedAmt>0 && uncalledAmt>0){
+        prizeHTML = '<div class="prize" style="color:var(--good);font-weight:700;">+$'+contestedAmt+'</div><div class="prize-note">+$'+uncalledAmt+' returned (uncalled)</div>';
+      } else if(contestedAmt>0){
+        prizeHTML = '<div class="prize" style="color:var(--good);font-weight:700;">+$'+contestedAmt+'</div>';
+      } else if(uncalledAmt>0){
+        prizeHTML = '<div class="prize-note">+$'+uncalledAmt+' returned (uncalled bet)</div>';
+      }
       row.innerHTML =
         '<div class="nm">'+r.seat.name+'</div>' +
-        '<div>'+r.seat.holeCards.map(cardHTML).join('')+'</div>' +
+        '<div class="showdown-cards">'+r.seat.holeCards.map(function(c){ return cardHTML(c); }).join('')+'</div>' +
         '<div class="hn">'+HAND_NAMES[r.ev.rank]+'</div>' +
-        (won ? '<div class="prize" style="color:var(--good);font-weight:700;">+$'+won+'</div>' : '');
+        prizeHTML;
       list.appendChild(row);
     });
     document.getElementById('showdownTitle').textContent = 'Showdown';
+    var boardRect = document.getElementById('board').getBoundingClientRect();
+    modal.style.paddingTop = Math.max(16, Math.round(boardRect.bottom) + 12) + 'px';
     modal.classList.add('show');
   }
 
@@ -1039,14 +1069,21 @@ footer .flipR{ display:inline-block; transform:scaleX(-1); }
     });
   }
 
+  var actionTimerHandle = null;
+  function clearActionTimer(){
+    if(actionTimerHandle){ clearInterval(actionTimerHandle); actionTimerHandle = null; }
+  }
+
   function renderActionBar(seat){
+    clearActionTimer();
     var area = document.getElementById('actionArea');
     var toCall = callAmount(seat);
     var canCheck = toCall===0;
     var maxBet = seat.chips + seat.betThisRound;
     var minRaiseTo = Math.min(maxBet, state.currentBet + state.minRaise);
 
-    var html = '<div class="raise-row">' +
+    var html = '<div class="action-timer-row"><div class="action-timer-bar" id="actionTimerBar"></div></div>' +
+    '<div class="raise-row">' +
       '<input type="range" id="raiseSlider" min="'+minRaiseTo+'" max="'+maxBet+'" step="'+Math.max(1,Math.round(state.curBB/2))+'" value="'+minRaiseTo+'">' +
       '<div class="raise-amt" id="raiseAmt">$'+minRaiseTo+'</div>' +
     '</div>' +
@@ -1062,6 +1099,22 @@ footer .flipR{ display:inline-block; transform:scaleX(-1); }
       '<button class="actbtn" id="allinBtn">All-in $'+maxBet+'</button>' +
     '</div>';
     area.innerHTML = html;
+
+    // 10-second action clock: auto-check if possible, otherwise auto-fold
+    var myHandId = state.handId;
+    var timeLeft = 10;
+    var bar = document.getElementById('actionTimerBar');
+    bar.style.width = '100%';
+    actionTimerHandle = setInterval(function(){
+      timeLeft -= 1;
+      if(state.handId !== myHandId){ clearActionTimer(); return; }
+      bar.style.width = Math.max(0, (timeLeft/10)*100) + '%';
+      if(timeLeft<=0){
+        clearActionTimer();
+        area.innerHTML = '';
+        applyAction(seat, canCheck ? 'check' : 'fold');
+      }
+    }, 1000);
 
     var slider = document.getElementById('raiseSlider');
     var amtLabel = document.getElementById('raiseAmt');
@@ -1081,19 +1134,19 @@ footer .flipR{ display:inline-block; transform:scaleX(-1); }
     });
 
     document.getElementById('foldBtn').addEventListener('click', function(){
-      area.innerHTML=''; applyAction(seat,'fold');
+      clearActionTimer(); area.innerHTML=''; applyAction(seat,'fold');
     });
     document.getElementById('checkCallBtn').addEventListener('click', function(){
-      area.innerHTML=''; applyAction(seat, canCheck?'check':'call');
+      clearActionTimer(); area.innerHTML=''; applyAction(seat, canCheck?'check':'call');
     });
     document.getElementById('raiseBtn').addEventListener('click', function(){
       var val = parseInt(slider.value,10);
-      area.innerHTML='';
+      clearActionTimer(); area.innerHTML='';
       if(val>=maxBet){ applyAction(seat,'allin'); }
       else { applyAction(seat, state.currentBet>0?'raise':'bet', val); }
     });
     document.getElementById('allinBtn').addEventListener('click', function(){
-      area.innerHTML=''; applyAction(seat,'allin');
+      clearActionTimer(); area.innerHTML=''; applyAction(seat,'allin');
     });
   }
 
@@ -1164,6 +1217,7 @@ footer .flipR{ display:inline-block; transform:scaleX(-1); }
   document.getElementById('endBtn').addEventListener('click', function(){
     if(!confirm('End this poker night and reset everything?')) return;
     clearInterval(timerHandle); timerHandle = null;
+    clearActionTimer();
     state = {
       started:false, finished:false,
       buyin:state.buyin, startStack:state.startStack, sb:state.sb, bb:state.bb,
