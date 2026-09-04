@@ -85,11 +85,11 @@ body{
   border-radius:999px; border:2px solid var(--gold); padding:8px; height:100%;
   box-shadow:0 0 16px rgba(240,195,77,0.35), inset 0 0 24px rgba(240,195,77,0.08);
 }
-.felt{ position:relative; border-radius:999px; padding:18px 14px 20px; height:520px;
+.felt{ position:relative; border-radius:999px; padding:18px 14px 20px; min-height:520px;
   background:radial-gradient(ellipse at 50% 20%, var(--felt-1), var(--felt-3) 75%, var(--felt-2) 100%);
   box-shadow:inset 0 10px 40px rgba(0,0,0,0.5); overflow:visible; }
-@media (max-width:900px){ .felt{ height:660px; } }
-@media (max-width:560px){ .felt{ height:800px; } }
+@media (max-width:900px){ .felt{ min-height:660px; } }
+@media (max-width:560px){ .felt{ min-height:800px; } }
 .felt-rules{ text-align:center; font-size:9px; letter-spacing:1.6px; text-transform:uppercase; color:var(--dark-text-dim); margin-bottom:12px; line-height:1.9; position:relative; z-index:3; }
 .felt-rules b{ color:var(--gold); }
 @media (max-width:560px){ .felt-rules{ font-size:8px; line-height:1.6; padding:0 30px; } }
@@ -111,8 +111,9 @@ body{
 /* ---------------- oval seating arc ---------------- */
 .oval-seats{ position:absolute; inset:0; z-index:4; }
 .oval-seat{ position:absolute; width:132px; margin-left:-66px; margin-top:-50px; transform:none; }
-.oval-seat.hero{ width:150px; margin-left:-75px; }
-.pos-you{ top:94%; left:50%; }
+.oval-seat.hero{ width:150px; margin-left:0; transform:translateX(-50%); }
+.oval-seat.hero.split{ width:auto; max-width:min(430px,92vw); min-width:150px; }
+.pos-you{ top:84%; left:50%; }
 .pos-1{ top:82%; left:15%; }
 .pos-2{ top:46%; left:6%; }
 .pos-3{ top:12%; left:23%; }
@@ -121,13 +122,19 @@ body{
 .pos-6{ top:82%; left:85%; }
 @media (max-width:900px){
   .oval-seat{ width:104px; margin-left:-52px; margin-top:-42px; }
-  .oval-seat.hero{ width:120px; margin-left:-60px; }
+  .oval-seat.hero{ width:120px; margin-left:0; }
+  .oval-seat.hero.split{ width:auto; max-width:min(360px,92vw); min-width:120px; }
   .pos-1{ left:18%; } .pos-2{ left:8%; } .pos-3{ left:25%; }
   .pos-4{ left:75%; } .pos-5{ left:92%; } .pos-6{ left:82%; }
 }
 @media (max-width:560px){
   .oval-seat{ width:90px; margin-left:-45px; margin-top:-38px; }
-  .oval-seat.hero{ width:104px; margin-left:-52px; }
+  .oval-seat.hero{ width:104px; margin-left:0; }
+  .oval-seat.hero.split{ width:98vw; max-width:98vw; }
+  .hb-hands.split{ gap:4px; flex-wrap:nowrap; }
+  .hb-hands.split .hb-cards .card{ width:24px; height:34px; font-size:10px; margin-left:-8px; }
+  .hb-hands.split .hand-total{ font-size:9px; padding:1px 4px; }
+  .hb-hands.split .hb-bj-badge{ font-size:7.5px; padding:1px 3px; }
   .pos-1{ top:82%; left:20%; } .pos-2{ top:50%; left:9%; } .pos-3{ top:24%; left:26%; }
   .pos-4{ top:24%; left:74%; } .pos-5{ top:50%; left:91%; } .pos-6{ top:82%; left:80%; }
 }
@@ -168,6 +175,9 @@ body{
 .button-token{ width:14px; height:14px; border-radius:50%; background:radial-gradient(circle at 35% 30%, #ffe9a8, var(--gold)); box-shadow:0 0 6px rgba(240,195,77,0.7); flex:none; }
 .hb-cards{ display:flex; min-height:0; }
 .hb-cards .card{ width:42px; height:59px; font-size:15px; border-radius:6px; margin-left:-12px; }
+.hb-hands{ display:flex; flex-direction:column; align-items:center; gap:6px; }
+.hb-hands.split{ flex-direction:row; flex-wrap:wrap; align-items:flex-start; justify-content:center; gap:10px; }
+.hb-hand-group{ display:flex; flex-direction:column; align-items:center; gap:4px; }
 .hb-cards .card:first-child{ margin-left:0; }
 .chip-dots{ display:flex; gap:3px; }
 .chip-dot{ width:14px; height:14px; border-radius:50%; box-shadow:0 1px 2px rgba(0,0,0,.4), inset 0 0 0 1px rgba(0,0,0,.25); }
@@ -360,7 +370,7 @@ footer .flipR{ display:inline-block; transform:scaleX(-1); }
 
   <div class="rules-card">
     <h3>House Rules — Games R Us Tournament Edition</h3>
-    <p style="text-align:center;">Natural blackjack — exactly two cards totaling 21 — pays 3× and is settled instantly, no dealer peek, no insurance. Any 21 reached by hitting, or by a split hand beyond its first extra card, is just a strong 21, paid at 1:1 like any other win. Split any two cards, not just a pair. Round 1 is a blind $1 ante for the whole table with both dealer cards hidden all the way through. From round 2 on, the dealer button rotates by random draw, and whoever holds it reveals exactly one of the dealer's two down cards for that round.</p>
+    <p style="text-align:center;">Natural blackjack — exactly two cards totaling 21 — pays 3× and is settled instantly, no dealer peek, no insurance. Any 21 reached by hitting, or by a split hand beyond its first extra card, is just a strong 21, paid at 1:1 like any other win. Split any two cards, not just a pair — up to 5 splits per hand. Round 1 is a blind $5 ante for the whole table with both dealer cards hidden all the way through. From round 2 on, the dealer button rotates by random draw, and whoever holds it reveals exactly one of the dealer's two down cards for that round.</p>
   </div>
 
   <div class="backlink"><a href="../index.html">← Back to the hub</a></div>
@@ -479,8 +489,8 @@ footer .flipR{ display:inline-block; transform:scaleX(-1); }
       <p>The dealer's first card is dealt face down and stays hidden until every player has acted. The second card is dealt face up.</p>
       <h3>Betting order &amp; the button</h3>
       <p>The button marks the seat that acts first this round. It rotates one seat to the left after every round.</p>
-      <h3>Round one — the temperature check</h3>
-      <p>Every table opens with a flat $1 minimum bet for everyone, regardless of the blind schedule. If escalating blinds are switched off, the table stays at a $1 minimum all night.</p>
+      <h3>Blinds &amp; the minimum bet</h3>
+      <p>Every table opens with a $5 minimum bet for everyone. The minimum doubles every time the blind level goes up — $5, $10, $20, $40, and so on — for the rest of that level.</p>
       <h3>Chip counts</h3>
       <p>You may request a full table chip count a limited number of times. It shows chip colors only, stacked so no one can count an exact total — requesting one pauses the blind clock.</p>
       <h3>Sitting out</h3>
@@ -538,7 +548,7 @@ const PRIZE_TABLE = {
   3:{ dealerPerSeat:10, prizes:[15,10,5] },
   4:{ dealerPerSeat:12, prizes:[15,10,5,3] }
 };
-const BLIND_LEVELS = [1,5,10,20,30,40,50];
+const BLIND_LEVELS = [5,10,20,40,80,160,320];
 const SUITS = ['♠','♥','♦','♣'];
 const RANKS = ['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
 const NAMES = ['You','Riley','Morgan','Taylor','Casey','Jordan','Sam'];
@@ -637,7 +647,7 @@ function newTournament(){
   closeOverlay('setupOverlay');
 }
 
-function minBet(){ return state.level===1 ? 1 : BLIND_LEVELS[Math.min(state.level-1, BLIND_LEVELS.length-1)]; }
+function minBet(){ return BLIND_LEVELS[Math.min(state.level-1, BLIND_LEVELS.length-1)]; }
 
 function startClock(){
   if(state.timerHandle) clearInterval(state.timerHandle);
@@ -685,7 +695,7 @@ document.getElementById('dealBtn').onclick = ()=>{
   const active = state.players.filter(p=>!p.busted);
   if(active.length<2){ setMsg('Not enough players left to deal.'); return; }
 
-  const bet = state.isFirstRound ? 1 : minBet();
+  const bet = minBet();
   state.players.forEach(p=>{
     if(p.busted){ p.hands=[]; return; }
     p.hands = [{ cards:[drawCard(), drawCard()], bet:bet, status:'active', doubled:false, isSplitChild:false }];
@@ -797,6 +807,7 @@ document.getElementById('doubleBtn').onclick = ()=>{
 };
 document.getElementById('splitBtn').onclick = ()=>{
   const p = state.players[state.turnSeat];
+  if(p.hands.length>=5) return;
   const h = currentHand(); if(!h || h.cards.length!==2) return;
   const newHand = { cards:[h.cards.pop(), drawCard()], bet:h.bet, status:'active', doubled:false, isSplitChild:true };
   h.cards.push(drawCard()); h.isSplitChild = true;
@@ -1010,10 +1021,64 @@ function renderFelt(){
     { pos:'pos-6', idx:1 }
   ];
   var wrap = document.getElementById('ovalSeats');
-  wrap.innerHTML = slots.map(function(slot){
-    var p = state.players[slot.idx];
-    return '<div class="oval-seat '+slot.pos+(slot.hero?' hero':'')+'">'+handBoxHTML(p, slot.hero?'you':'neighbor')+'</div>';
-  }).join('');
+  slots.forEach(function(slot){
+    var idx = slot.idx;
+    var p = state.players[idx];
+    var isTurn = state.players.indexOf(p)===state.turnSeat;
+    var extraClass = slot.hero?'you':'neighbor';
+
+    var outer = document.getElementById('ovalSeatEl-'+idx);
+    if(!outer){
+      outer = document.createElement('div');
+      outer.id = 'ovalSeatEl-'+idx;
+      outer.className = 'oval-seat '+slot.pos+(slot.hero?' hero':'');
+      outer.innerHTML =
+        '<div class="handbox">' +
+          '<div class="hb-head">' +
+            '<span class="button-slot"></span>' +
+            '<div class="avatar-sm"'+(p.isYou?' onclick="triggerPhotoUpload('+idx+')"':'')+'></div>' +
+            '<div class="hb-name"></div>' +
+          '</div>' +
+          '<div class="hb-hands"></div>' +
+        '</div>';
+      wrap.appendChild(outer);
+    }
+
+    var box = outer.querySelector('.handbox');
+    box.className = 'handbox '+extraClass+' '+(idx===state.buttonIndex?'onbutton':'')+' '+(isTurn?'bj':'')+' '+(p.busted?'busted':'');
+
+    var avatarEl = box.querySelector('.avatar-sm');
+    if(p.photo){ avatarEl.style.background='transparent'; avatarEl.style.backgroundImage='url('+p.photo+')'; avatarEl.textContent=''; }
+    else { avatarEl.style.background=AVATAR_COLORS[idx%AVATAR_COLORS.length]; avatarEl.style.backgroundImage='none'; avatarEl.textContent=p.name[0]; }
+
+    box.querySelector('.button-slot').innerHTML = idx===state.buttonIndex ? '<div class="button-token" title="Dealer button"></div>' : '';
+    box.querySelector('.hb-name').textContent = p.name+(p.isYou?' (you)':'');
+
+    // only touch the hands/cards markup when it actually changed, so the deal
+    // animation doesn't retrigger on every action across the whole table
+    var handsSig = JSON.stringify({b:p.busted, h:p.hands.map(function(h){ return {c:h.cards,s:h.status,bt:h.bet}; }), ph:state.phase, pb:p.pendingBet});
+    if(outer.dataset.handsig !== handsSig){
+      outer.dataset.handsig = handsSig;
+      var handsHTML;
+      if(p.busted){ handsHTML = '<div class="pricing-note">BUSTED</div>'; }
+      else if(!p.hands.length){ handsHTML = '<div class="pricing-note">'+(state.phase==='betting'||state.phase==='pregame' ? 'ante $'+(p.pendingBet||minBet()) : 'waiting')+'</div>'; }
+      else {
+        handsHTML = p.hands.map(function(h){
+          var t = handTotal(h.cards);
+          var cardsHtml = h.cards.map(function(c){ return cardHTML(c,false); }).join('');
+          var statusTxt;
+          if(h.status==='blackjack') statusTxt = '<div class="hb-bj-badge">BLACKJACK 3×</div>';
+          else if(h.status==='bust') statusTxt = '<div class="hb-bj-badge" style="background:var(--danger);color:#fff;">BUST</div>';
+          else statusTxt = '<div class="hand-total">'+t+'</div>';
+          return '<div class="hb-hand-group"><div class="hb-cards cards">'+cardsHtml+'</div>'+statusTxt+chipDotsHTML(h.bet)+'</div>';
+        }).join('');
+        box.querySelector('.hb-hands').className = 'hb-hands' + (p.hands.length>1 ? ' split' : '');
+      }
+      box.querySelector('.hb-hands').innerHTML = handsHTML;
+    }
+
+    outer.classList.toggle('split', p.hands.length>1);
+  });
 }
 
 function triggerPhotoUpload(i){
@@ -1035,8 +1100,9 @@ function updateActionRails(){
   document.getElementById('dealBtn').disabled = !(state.phase==='pregame' || state.phase==='betting');
   if(acting){
     const h = currentHand();
+    const p = state.players[state.turnSeat];
     document.getElementById('doubleBtn').disabled = !h || h.cards.length!==2;
-    document.getElementById('splitBtn').disabled = !h || h.cards.length!==2;
+    document.getElementById('splitBtn').disabled = !h || h.cards.length!==2 || p.hands.length>=5;
   }
 }
 
