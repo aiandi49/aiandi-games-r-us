@@ -190,6 +190,10 @@ body{
 .msg-line{ text-align:center; min-height:20px; font-size:12.5px; font-weight:600; color:var(--accent); margin:10px 0 4px; letter-spacing:0.3px; }
 
 .action-rail{ display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-bottom:14px; }
+.raise-row{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+.presetbtn{ background:var(--panel-2); border:1px solid var(--line); color:var(--text-dim); border-radius:8px; padding:6px 12px; font-size:11px; cursor:pointer; }
+.presetbtn:hover{ border-color:var(--gold); color:var(--gold); }
+.raise-amt{ font-family:Georgia,serif; font-weight:700; color:var(--gold); min-width:60px; text-align:center; }
 .actbtn{ flex:1 1 140px; max-width:200px; padding:12px 8px; border-radius:12px; border:1px solid var(--line); background:var(--panel); color:var(--text);
   font-size:12px; letter-spacing:1px; text-transform:uppercase; font-weight:700; cursor:pointer; transition:all .15s ease; }
 .actbtn:hover:not(:disabled){ border-color:var(--gold); color:var(--gold); transform:translateY(-1px); }
@@ -343,12 +347,24 @@ footer .flipR{ display:inline-block; transform:scaleX(-1); }
     </div>
   </div>
 
-  <div class="msg-line" id="msgLine">Press Start Game to begin — everyone antes $1 for round 1.</div>
+  <div class="msg-line" id="msgLine">Press Start Game to begin — everyone antes $5 for round 1.</div>
 
   <div class="action-rail" id="startRail">
     <button class="actbtn primary" id="startGameBtn" style="flex:1 1 260px;">Start Game</button>
   </div>
   <div class="action-rail" id="bettingRail" style="display:none;">
+    <div id="betSelector" style="display:none; width:100%; text-align:center; margin-bottom:12px;">
+      <div style="margin-bottom:8px; font-size:12px; color:var(--text-dim); letter-spacing:0.5px;">YOUR BET — MINIMUM $<span id="betMinLabel">5</span></div>
+      <div class="raise-row" style="justify-content:center; gap:8px; margin-bottom:8px;">
+        <button class="presetbtn" id="betMinBtn" type="button">Min</button>
+        <button class="presetbtn" id="betDoubleBtn" type="button">2×</button>
+        <button class="presetbtn" id="betAllInBtn" type="button">All-in</button>
+      </div>
+      <div style="display:flex; align-items:center; justify-content:center; gap:10px;">
+        <input type="range" id="betSlider" style="width:220px;">
+        <div class="raise-amt" id="betAmtLabel">$5</div>
+      </div>
+    </div>
     <button class="actbtn primary go" id="dealBtn" style="flex:1 1 260px;">Deal</button>
   </div>
   <div class="action-rail" id="revealChoiceRail" style="display:none;">
@@ -672,8 +688,8 @@ function updateClockUI(){
   document.getElementById('levelBar').style.width = ((rem/state.levelSeconds)*100)+'%';
   document.getElementById('dealerEarnings').textContent = '$'+state.dealerEarnings.toLocaleString();
   document.getElementById('minBetFeltLabel').textContent = state.isFirstRound
-    ? 'round 1 — $1 minimum, both dealer cards hidden'
-    : 'round '+state.level+' — $'+minBet()+' minimum, one dealer card revealed';
+    ? 'round 1 — $'+minBet()+' minimum, both dealer cards hidden'
+    : 'round '+state.level+' — $'+minBet()+' minimum, free betting, one dealer card revealed';
 }
 document.getElementById('pauseBtn').onclick = ()=>{ state.paused=!state.paused; document.getElementById('pauseBtn').textContent = state.paused?'Resume':'Pause'; };
 document.getElementById('skipBtn').onclick = ()=>{ if(state.level<BLIND_LEVELS.length){ state.level++; state.remaining=state.levelSeconds; updateClockUI(); } };
@@ -685,8 +701,9 @@ document.getElementById('startGameBtn').onclick = ()=>{
   document.getElementById('startRail').style.display = 'none';
   document.getElementById('bettingRail').style.display = 'flex';
   document.getElementById('pauseBtn').disabled = false;
-  state.players.forEach(p=>{ if(!p.busted) p.pendingBet = 1; });
-  setMsg('Everyone has anted $1. Press Deal to begin round 1.');
+  const bet = minBet();
+  state.players.forEach(p=>{ if(!p.busted) p.pendingBet = bet; });
+  setMsg('Everyone has anted $'+bet+'. Press Deal to begin round 1.');
   updateClockUI();
 };
 
@@ -698,7 +715,8 @@ document.getElementById('dealBtn').onclick = ()=>{
   const bet = minBet();
   state.players.forEach(p=>{
     if(p.busted){ p.hands=[]; return; }
-    p.hands = [{ cards:[drawCard(), drawCard()], bet:bet, status:'active', doubled:false, isSplitChild:false }];
+    const wager = Math.max(bet, p.pendingBet||bet);
+    p.hands = [{ cards:[drawCard(), drawCard()], bet:wager, status:'active', doubled:false, isSplitChild:false }];
   });
   state.dealerHand = [drawCard(), drawCard()];
 
@@ -929,11 +947,47 @@ function spinWheel(done){
 function startBettingRound(){
   state.phase = 'betting';
   const bet = minBet();
-  state.players.forEach(p=>{ if(!p.busted) p.pendingBet = bet; });
+  const you = state.players[0];
+  const betSelector = document.getElementById('betSelector');
+
+  if(state.isFirstRound || you.busted){
+    // round 1: flat ante for the whole table, no individual choice yet
+    state.players.forEach(p=>{ if(!p.busted) p.pendingBet = bet; });
+    betSelector.style.display = 'none';
+    setMsg('Round '+state.level+' — everyone bets $'+bet+'. Press Deal when ready.');
+  } else {
+    // round 2+: AI still bets the table minimum, you choose your own (floor = minBet)
+    state.players.forEach(p=>{ if(!p.busted && !p.isYou) p.pendingBet = bet; });
+    const maxBet = Math.max(bet, you.bank);
+    document.getElementById('betMinLabel').textContent = bet;
+    const slider = document.getElementById('betSlider');
+    slider.min = bet; slider.max = maxBet; slider.step = Math.max(1, Math.round(bet/5));
+    slider.value = Math.max(bet, Math.min(you.pendingBet||bet, maxBet));
+    you.pendingBet = parseInt(slider.value,10);
+    document.getElementById('betAmtLabel').textContent = '$'+slider.value;
+    betSelector.style.display = 'block';
+    setMsg('Round '+state.level+' — place your bet (minimum $'+bet+'), then press Deal.');
+  }
   document.getElementById('bettingRail').style.display = 'flex';
-  setMsg('Round '+state.level+' — everyone bets $'+bet+'. Press Deal when ready.');
   renderAll();
 }
+
+(function wireBetSelector(){
+  const slider = document.getElementById('betSlider');
+  const amtLabel = document.getElementById('betAmtLabel');
+  function setYourBet(val){
+    const you = state.players[0];
+    val = Math.max(parseInt(slider.min,10), Math.min(parseInt(slider.max,10), val));
+    slider.value = val;
+    you.pendingBet = val;
+    amtLabel.textContent = '$'+val;
+    renderAll();
+  }
+  slider.addEventListener('input', ()=> setYourBet(parseInt(slider.value,10)));
+  document.getElementById('betMinBtn').addEventListener('click', ()=> setYourBet(parseInt(slider.min,10)));
+  document.getElementById('betDoubleBtn').addEventListener('click', ()=> setYourBet((state.players[0].pendingBet||parseInt(slider.min,10))*2));
+  document.getElementById('betAllInBtn').addEventListener('click', ()=> setYourBet(parseInt(slider.max,10)));
+})();
 
 function celebrateBlackjack(){
   const layer = document.getElementById('confettiLayer');
@@ -968,12 +1022,26 @@ function renderAll(){
 
 function renderDealer(){
   const holder = document.getElementById('dealerCards');
-  holder.innerHTML = '';
-  if(!state.dealerHand.length){ holder.innerHTML = '<div class="card back"><div class="mark">T7</div></div><div class="card back"><div class="mark">T7</div></div>'; document.getElementById('dealerTotalDisplay').innerHTML='&nbsp;'; return; }
+  const totalEl = document.getElementById('dealerTotalDisplay');
+
+  if(!state.dealerHand.length){
+    const emptySig = 'empty';
+    if(holder.dataset.dealersig !== emptySig){
+      holder.dataset.dealersig = emptySig;
+      holder.innerHTML = '<div class="card back"><div class="mark">T7</div></div><div class="card back"><div class="mark">T7</div></div>';
+    }
+    totalEl.innerHTML = '&nbsp;';
+    return;
+  }
+
   const showLeft = state.dealerReveal==='left' || state.dealerReveal==='both';
   const showRight = state.dealerReveal==='right' || state.dealerReveal==='both';
-  holder.innerHTML = cardHTML(state.dealerHand[0], !showLeft) + cardHTML(state.dealerHand[1], !showRight);
-  const totalEl = document.getElementById('dealerTotalDisplay');
+  const sig = JSON.stringify(state.dealerHand) + '|' + state.dealerReveal;
+  if(holder.dataset.dealersig !== sig){
+    holder.dataset.dealersig = sig;
+    holder.innerHTML = cardHTML(state.dealerHand[0], !showLeft) + cardHTML(state.dealerHand[1], !showRight);
+  }
+
   if(state.dealerReveal==='both'){
     const t = handTotal(state.dealerHand);
     totalEl.textContent = t + (t>21?' — bust':'');
