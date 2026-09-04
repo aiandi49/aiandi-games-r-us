@@ -87,17 +87,35 @@ body{
 .felt-rules{ text-align:center; font-size:9px; letter-spacing:1.6px; text-transform:uppercase; color:rgba(240,195,77,0.65); margin-bottom:10px; line-height:1.9; }
 .felt-rules b{ color:var(--gold); }
 
-.reset-ribbons{
-  position:absolute; top:14px; left:14px; display:flex; flex-wrap:wrap; gap:6px;
-  max-width:120px; z-index:2; pointer-events:none;
+.ribbons-left{ position:absolute; top:16px; left:16px; display:flex; flex-direction:column; gap:12px; z-index:2; pointer-events:none; }
+.ribbons-right{ position:absolute; top:16px; right:16px; display:flex; flex-direction:column; gap:12px; z-index:2; pointer-events:none; align-items:flex-end; }
+.reset-ribbon{
+  width:104px; padding:12px 8px 24px; text-align:center; color:#fff;
+  background:linear-gradient(180deg,#d5544a,#8f221f); border-radius:8px 8px 0 0;
+  box-shadow:0 8px 18px rgba(0,0,0,0.45); position:relative;
+  clip-path:polygon(0 0, 100% 0, 100% 80%, 50% 100%, 0 80%);
 }
-.reset-ribbons img{
-  width:38px; height:38px; object-fit:contain; border-radius:50%;
-  filter:drop-shadow(0 4px 8px rgba(0,0,0,0.55));
-  opacity:0.92;
+.reset-ribbon:nth-child(odd){ transform:rotate(-4deg); }
+.reset-ribbon:nth-child(even){ transform:rotate(3deg); }
+.reset-ribbon .rb-num{ font-family:Georgia,serif; font-weight:800; font-size:26px; line-height:1; }
+.reset-ribbon .rb-lbl{ font-size:10px; letter-spacing:1.2px; text-transform:uppercase; font-weight:700; margin-top:4px; opacity:0.95; }
+@media (max-width:640px){
+  .reset-ribbon{ width:78px; padding:9px 6px 18px; }
+  .reset-ribbon .rb-num{ font-size:19px; }
+  .reset-ribbon .rb-lbl{ font-size:8px; }
 }
-.reset-ribbons img:nth-child(odd){ transform:rotate(-6deg); }
-.reset-ribbons img:nth-child(even){ transform:rotate(5deg); }
+.milestone-ribbons{ position:absolute; bottom:14px; left:0; right:0; display:flex; gap:10px; justify-content:center; flex-wrap:wrap; z-index:2; pointer-events:none; padding:0 16px; }
+.milestone-ribbon{
+  width:88px; padding:10px 6px 20px; text-align:center; color:#3a2405;
+  background:linear-gradient(180deg,#ffe08a,var(--gold)); border-radius:8px 8px 0 0;
+  box-shadow:0 8px 16px rgba(0,0,0,0.4); clip-path:polygon(0 0, 100% 0, 100% 80%, 50% 100%, 0 80%);
+}
+.milestone-ribbon .mr-num{ font-family:Georgia,serif; font-weight:800; font-size:17px; line-height:1; }
+.milestone-ribbon .mr-lbl{ font-size:8.5px; letter-spacing:1px; text-transform:uppercase; font-weight:700; margin-top:3px; }
+@media (max-width:640px){ .milestone-ribbon{ width:66px; padding:7px 5px 14px; } .milestone-ribbon .mr-num{ font-size:13px; } }
+.standing-chip{ display:inline-block; padding:5px 12px; border-radius:20px; font-size:11px; font-weight:700; margin:3px; }
+.standing-chip.gold{ background:rgba(240,195,77,0.15); color:var(--gold); border:1px solid rgba(240,195,77,0.4); }
+.standing-chip.red{ background:rgba(213,84,74,0.15); color:#e0645a; border:1px solid rgba(213,84,74,0.4); }
 
 .zone{ display:flex; flex-direction:column; align-items:center; gap:6px; padding:10px 0; position:relative; }
 .zone-label{ font-size:9.5px; letter-spacing:2.5px; text-transform:uppercase; color:var(--dark-text-dim); }
@@ -263,7 +281,7 @@ footer .flipR{ display:inline-block; transform:scaleX(-1); }
     <div class="mode-badge">Half-Bank Mode</div>
   </div>
 
-  <div class="day-over-banner" id="dayOverBanner">The shoe has been fully dealt out — that's the end of the day. Click "New Game" to start a fresh day.</div>
+  <div class="day-over-banner" id="dayOverBanner">The cut card was reached — that's the end of the day. Click "New Game" to start a fresh day.</div>
 
   <div class="stat-strip">
     <div class="stat-card"><div class="l">Bankroll</div><div class="v" id="statBank">$500</div><div class="reset-count" id="resetCount">0 resets</div></div>
@@ -274,7 +292,9 @@ footer .flipR{ display:inline-block; transform:scaleX(-1); }
 
   <div class="felt">
     <div class="reversal-flash" id="reversalFlash"><span class="rtxt">REVERSAL!</span></div>
-    <div class="reset-ribbons" id="resetRibbons"></div>
+    <div class="ribbons-left" id="ribbonsLeft"></div>
+    <div class="ribbons-right" id="ribbonsRight"></div>
+    <div class="milestone-ribbons" id="milestoneRibbons"></div>
 
     <div class="felt-rules">
       <b>Blackjack pays 3 to 1</b> &nbsp;•&nbsp; <b>split any two cards, still blackjack</b><br>
@@ -344,7 +364,7 @@ footer .flipR{ display:inline-block; transform:scaleX(-1); }
       Every bet is mandatory: it's always <b style="color:var(--text)">50% of your current bankroll</b>, rounded down to the nearest $5 so you can always afford to double if the situation calls for it. Win or lose, the next round's minimum recalculates from your new bankroll. $500 and $1000 chips unlock once your bankroll is over $1000, letting you bet above the minimum if you want.
       </p>
       <p style="margin:8px 0 0;font-size:12.5px;line-height:1.7;color:var(--text-dim);">
-      The shoe is played all the way down to <b style="color:var(--text)">0 cards</b> — no early reshuffle. When it hits 0, that's the end of the day, and starting a new one is always your call, never automatic. The same goes for a $0 bankroll: the game won't reset itself — you have to click "Reset Bank" yourself.
+      The shoe plays deep — a hidden cut card sits in the last 15-25% of the 8-deck shoe, same as Blackjack Reversal. When the round in progress finishes past that point, that's the end of the day: your bankroll resets to $500, your reversals refill to 5/5, and starting the next day is always your call via "New Game," never automatic. Reaching a $0 bankroll mid-day works the same way — the game won't reset itself, you click "Reset Bank" yourself, and that also refills your reversals.
       </p>
     </div>
     <div class="rev-block">
@@ -432,6 +452,16 @@ footer .flipR{ display:inline-block; transform:scaleX(-1); }
   </div>
 </div>
 
+<div class="modal-bg" id="standingsBg">
+  <div class="modal">
+    <h2>Game Over — This Shoe's Standings</h2>
+    <p style="font-size:11px;color:var(--text-dim);text-align:center;margin-top:-6px;">The shoe played all the way down. Here's how this game went.</p>
+    <div id="standingsBody" style="margin-top:14px;"></div>
+    <button class="actbtn primary" id="standingsNewGameBtn" style="width:100%; margin-top:16px;">Start Next Game</button>
+    <p style="font-size:10px;color:var(--text-dim);text-align:center;margin-top:10px;">No cross-player leaderboard yet — that needs player profiles, which aren't built. This is your own recap.</p>
+  </div>
+</div>
+
 <div class="modal-bg" id="lbBg">
   <div class="modal">
     <h2>Monthly Leaderboard</h2>
@@ -474,6 +504,10 @@ footer .flipR{ display:inline-block; transform:scaleX(-1); }
      Half-Bank Mode uses its own storage keys (bjrhb_*) so it never touches
      or overwrites the original Blackjack Reversal file's saved bankroll/theme. */
   var LS_BANK = 'bjrhb_bankroll', LS_THEME = 'bjrhb_theme', LS_RESETS = 'bjrhb_resetcount', LS_BUSTED = 'bjrhb_hasbusted', LS_LB = 'bjrhb_leaderboard';
+  var LS_MILESTONES = 'bjrhb_milestones';
+  var MILESTONE_TIERS = [10000, 25000, 100000, 250000];
+  function loadMilestones(){ try{ var v = JSON.parse(localStorage.getItem(LS_MILESTONES)); return Array.isArray(v) ? v : []; }catch(e){ return []; } }
+  function saveMilestones(v){ try{ localStorage.setItem(LS_MILESTONES, JSON.stringify(v)); }catch(e){} }
   function loadBank(){ var v = parseFloat(localStorage.getItem(LS_BANK)); return isNaN(v) ? 500 : v; }
   function saveBank(v){ try{ localStorage.setItem(LS_BANK, String(v)); }catch(e){} }
   function loadResetCount(){ var v = parseInt(localStorage.getItem(LS_RESETS),10); return isNaN(v) ? 0 : v; }
@@ -482,9 +516,11 @@ footer .flipR{ display:inline-block; transform:scaleX(-1); }
   function saveBusted(v){ try{ localStorage.setItem(LS_BUSTED, v ? '1' : '0'); }catch(e){} }
   // Shoe state must persist too — otherwise a page refresh silently hands you
   // a brand-new 416-card shoe mid-session, breaking the "play down to 0" rule.
-  var LS_SHOE = 'bjrhb_shoe', LS_REVTOKENS = 'bjrhb_revtokens', LS_DAYOVER = 'bjrhb_dayover';
+  var LS_SHOE = 'bjrhb_shoe', LS_CUTIDX = 'bjrhb_cutindex', LS_REVTOKENS = 'bjrhb_revtokens', LS_DAYOVER = 'bjrhb_dayover';
   function loadShoe(){ try{ var raw = localStorage.getItem(LS_SHOE); return raw ? JSON.parse(raw) : null; }catch(e){ return null; } }
   function saveShoe(s){ try{ localStorage.setItem(LS_SHOE, JSON.stringify(s)); }catch(e){} }
+  function loadCutIdx(){ var v = parseInt(localStorage.getItem(LS_CUTIDX),10); return isNaN(v) ? null : v; }
+  function saveCutIdx(v){ try{ localStorage.setItem(LS_CUTIDX, String(v)); }catch(e){} }
   function loadRevTokens(){ var v = parseInt(localStorage.getItem(LS_REVTOKENS),10); return isNaN(v) ? null : v; }
   function saveRevTokens(v){ try{ localStorage.setItem(LS_REVTOKENS, String(v)); }catch(e){} }
   function loadDayOverFlag(){ return localStorage.getItem(LS_DAYOVER) === '1'; }
@@ -509,10 +545,14 @@ footer .flipR{ display:inline-block; transform:scaleX(-1); }
   var NUM_DECKS = 8;
 
   var shoe = [];
+  var cutIndex = 0;
   var reversalTokens = 5;
-  var dayOver = false; // Half-Bank Mode: the shoe is played all the way down to 0 cards —
-                        // no early cut-card reshuffle. Hitting 0 ends the "day" and requires
-                        // a manual "New Game" click to start a fresh day (never automatic).
+  var dayOver = false; // Half-Bank Mode: a cut card is set deep in the shoe (75-85% dealt),
+                        // same as Blackjack Reversal — this gives a safety buffer so "day over"
+                        // is detected reliably before the shoe can ever hit literal 0 mid-hand,
+                        // which would otherwise race against the empty-shoe safety reshuffle.
+                        // Hitting the cut card ends the "day" and requires a manual "New Game"
+                        // click to start a fresh day (never automatic).
 
   function buildShoe(){
     var cards = [];
@@ -529,9 +569,12 @@ footer .flipR{ display:inline-block; transform:scaleX(-1); }
       var tmp = cards[i]; cards[i]=cards[j]; cards[j]=tmp;
     }
     shoe = cards;
+    var pct = 0.75 + Math.random()*0.10;
+    cutIndex = Math.floor(shoe.length * pct);
     reversalTokens = 5;
     dayOver = false;
     saveShoe(shoe);
+    saveCutIdx(cutIndex);
     saveRevTokens(reversalTokens);
     saveDayOverFlag(false);
     updateShoeUI();
@@ -545,8 +588,10 @@ footer .flipR{ display:inline-block; transform:scaleX(-1); }
     var savedShoe = loadShoe();
     var savedTokens = loadRevTokens();
     var savedDayOver = loadDayOverFlag();
-    if(savedShoe && Array.isArray(savedShoe) && savedShoe.length >= 0 && savedTokens !== null){
+    var savedCut = loadCutIdx();
+    if(savedShoe && Array.isArray(savedShoe) && savedShoe.length >= 0 && savedTokens !== null && savedCut !== null){
       shoe = savedShoe;
+      cutIndex = savedCut;
       reversalTokens = savedTokens;
       dayOver = savedDayOver;
       updateShoeUI();
@@ -615,6 +660,7 @@ footer .flipR{ display:inline-block; transform:scaleX(-1); }
 
   var MAX_SPLITS = 3; // up to 4 hands total
   var resetCount = loadResetCount();
+  var milestonesEarned = loadMilestones();
   var hasBusted = loadBusted(); // has bankroll hit $0 at any point this run
 
   /* ---------------- half-bank mandatory minimum bet ----------------
@@ -676,19 +722,44 @@ footer .flipR{ display:inline-block; transform:scaleX(-1); }
     saveBank(bankroll);
     el.resetCount.textContent = resetCount + (resetCount===1 ? ' reset' : ' resets');
     if(bankroll <= 0 && !hasBusted){ hasBusted = true; saveBusted(true); }
+    checkMilestones();
     renderResetRibbons();
+    renderMilestoneRibbons();
   }
-  var RESET_RIBBON_URL = 'https://msuqflssqixsplcearxr.supabase.co/storage/v1/object/public/restore/reset-chip-stack.png';
-  function renderResetRibbons(){
-    var wrap = document.getElementById('resetRibbons');
+  function checkMilestones(){
+    MILESTONE_TIERS.forEach(function(t){
+      if(bankroll>=t && milestonesEarned.indexOf(t)===-1){
+        milestonesEarned.push(t);
+        saveMilestones(milestonesEarned);
+        setMsg('Milestone reached — $'+t.toLocaleString()+' bankroll! That ribbon is yours for good.', true);
+      }
+    });
+  }
+  function renderMilestoneRibbons(){
+    var wrap = document.getElementById('milestoneRibbons');
     if(!wrap) return;
     wrap.innerHTML = '';
-    for(var i=0; i<resetCount; i++){
-      var img = document.createElement('img');
-      img.src = RESET_RIBBON_URL;
-      img.alt = 'Reset #' + (i+1);
-      img.title = 'Bankroll reset #' + (i+1);
-      wrap.appendChild(img);
+    milestonesEarned.forEach(function(t){
+      var r = document.createElement('div');
+      r.className = 'milestone-ribbon';
+      r.title = 'Reached a $'+t.toLocaleString()+' bankroll';
+      var label = t>=1000 ? '$'+Math.round(t/1000)+'K' : '$'+t;
+      r.innerHTML = '<div class="mr-num">'+label+'</div><div class="mr-lbl">Bankroll</div>';
+      wrap.appendChild(r);
+    });
+  }
+  function renderResetRibbons(){
+    var left = document.getElementById('ribbonsLeft');
+    var right = document.getElementById('ribbonsRight');
+    if(!left || !right) return;
+    left.innerHTML = ''; right.innerHTML = '';
+    for(var i=1; i<=resetCount; i++){
+      var ribbon = document.createElement('div');
+      ribbon.className = 'reset-ribbon';
+      ribbon.title = 'Bankroll reset #' + i;
+      ribbon.innerHTML = '<div class="rb-num">1</div><div class="rb-lbl">Reset</div>';
+      var slot = (i-1) % 4;
+      if(slot < 2) left.appendChild(ribbon); else right.appendChild(ribbon);
     }
   }
   function updateBetUI(){ el.bet.textContent = money(currentBet); el.betAmtDisplay.textContent = money(currentBet); updateChipAffordability(); }
@@ -721,7 +792,7 @@ footer .flipR{ display:inline-block; transform:scaleX(-1); }
   updateBetUI();
   if(dayOver){
     el.betRail.style.display = 'none';
-    setMsg('Picking up where you left off — the shoe was fully dealt out last time. Click "New Game" to start a fresh day.', true);
+    setMsg('Picking up where you left off — the cut card was reached last time. Click "New Game" to start a fresh day.', true);
   }
 
   /* ---------------- rendering ---------------- */
@@ -1069,19 +1140,20 @@ footer .flipR{ display:inline-block; transform:scaleX(-1); }
     el.actionRail.style.display = 'none';
     reversalUsedThisHand = false;
 
-    // Half-Bank Mode: no early cut-card reshuffle. The shoe is played all the
-    // way down. Once it truly hits 0 cards, the day is over — this is a
-    // manual stop, not an automatic reshuffle. The player has to click
-    // "New Game" themselves to start a fresh day.
-    if(shoe.length === 0){
+    // Cut card reached: same buffered approach as Blackjack Reversal. This
+    // fires with a safety margin before the shoe can ever hit literal 0,
+    // so it can't race against the empty-shoe safety reshuffle in drawCard().
+    var fullShoeSize = NUM_DECKS*52;
+    if(shoe.length <= (fullShoeSize - cutIndex)){
       dayOver = true;
       saveDayOverFlag(true);
       setTimeout(function(){
         setDayOverBanner(true);
         el.betRail.style.display = 'none';
-        setMsg('Shoe fully dealt — that\'s the end of the day. Click "New Game" when you\'re ready.', true);
+        setMsg('Cut card reached — that\'s the end of the day. Click "New Game" when you\'re ready.', true);
         render();
-      }, 500);
+        showStandings();
+      }, 800);
       return;
     }
 
@@ -1099,12 +1171,15 @@ footer .flipR{ display:inline-block; transform:scaleX(-1); }
 
   /* ---------------- reset bankroll ---------------- */
   document.getElementById('resetBtn').addEventListener('click', function(){
-    if(!confirm('Reset your bankroll back to $500? This will count as reset #' + (resetCount+1) + '.')) return;
+    if(!confirm('Reset your bankroll back to $500? This will count as reset #' + (resetCount+1) + '. Your reversal calls will also refill to 5/5.')) return;
     bankroll = 500;
     resetCount += 1;
     saveResetCount(resetCount);
     hasBusted = false;
     saveBusted(false);
+    reversalTokens = 5;
+    saveRevTokens(reversalTokens);
+    updateTokenUI();
     currentBet = computeMinBet(bankroll);
     phase = 'betting';
     el.betRail.style.display = 'flex';
@@ -1182,9 +1257,9 @@ footer .flipR{ display:inline-block; transform:scaleX(-1); }
   });
 
   /* ---------------- new game (full reset: shoe + reversals + hands, keeps bankroll) ---------------- */
-  document.getElementById('newGameBtn').addEventListener('click', function(){
-    if(!confirm('Start a new day? This deals a fresh shoe (played all the way to 0 cards), resets your 5 reversals, and starts your bank-reset count over at 0 for this new shoe. Your bankroll stays the same — use "Reset Bank" separately if you want to reset money too.')) return;
+  function startNextGame(){
     buildShoe();
+    bankroll = 500;
     lastBet = 0;
     dealerHand = { cards:[], holeHidden:true };
     playerHands = [];
@@ -1193,21 +1268,43 @@ footer .flipR{ display:inline-block; transform:scaleX(-1); }
     reversalUsedThisHand = false;
     dayOver = false;
     setDayOverBanner(false);
+    hasBusted = false;
+    saveBusted(false);
     // A new shoe/game is a brand new game — bank-reset count is per-shoe, not ongoing.
+    // Milestone ribbons are NOT reset here — they're lifetime achievements.
     resetCount = 0;
     saveResetCount(0);
     el.actionRail.style.display = 'none';
-    if(bankroll > 0){
-      currentBet = computeMinBet(bankroll);
-      el.betRail.style.display = 'flex';
-      setMsg('New day — fresh shoe, 5 reversals ready, reset count back to 0. Place your bet.');
-    } else {
-      currentBet = 0;
-      el.betRail.style.display = 'none';
-      setMsg('Bankroll is at $0 — click "Reset Bank" to keep playing.', true);
-    }
+    currentBet = computeMinBet(bankroll);
+    el.betRail.style.display = 'flex';
     updateBankUI();
     render();
+    setMsg('New game — fresh $500 bankroll, 5 reversals ready, reset count back to 0. Place your bet.');
+  }
+
+  function showStandings(){
+    var body = document.getElementById('standingsBody');
+    var ribbonsHTML = milestonesEarned.length
+      ? milestonesEarned.map(function(t){ return '<span class="standing-chip gold">$'+(t>=1000?Math.round(t/1000)+'K':t)+' bankroll</span>'; }).join(' ')
+      : '<span style="color:var(--text-dim); font-size:12px;">No bankroll milestones yet this lifetime — $10K is the first one.</span>';
+    body.innerHTML =
+      '<div style="text-align:center; margin-bottom:14px;">' +
+        '<div style="font-size:11px; letter-spacing:1px; text-transform:uppercase; color:var(--text-dim);">Final Bankroll This Shoe</div>' +
+        '<div style="font-family:Georgia,serif; font-size:34px; font-weight:800; color:var(--gold);">'+money(bankroll)+'</div>' +
+      '</div>' +
+      '<div style="text-align:center; margin-bottom:10px;"><span class="standing-chip red">'+resetCount+' bank '+(resetCount===1?'reset':'resets')+' this shoe</span></div>' +
+      '<div style="text-align:center;">'+ribbonsHTML+'</div>';
+    document.getElementById('standingsBg').classList.add('show');
+  }
+
+  document.getElementById('standingsNewGameBtn').addEventListener('click', function(){
+    document.getElementById('standingsBg').classList.remove('show');
+    startNextGame();
+  });
+
+  document.getElementById('newGameBtn').addEventListener('click', function(){
+    if(!confirm('Start a new day? This deals a fresh shoe, resets your bankroll to $500, refills your 5 reversals, and starts your bank-reset count over at 0. Bankroll milestone ribbons carry over — those are permanent.')) return;
+    startNextGame();
   });
 
   /* initial render */
