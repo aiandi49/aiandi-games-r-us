@@ -167,7 +167,9 @@ body{
 .handbox{ display:flex; flex-direction:column; align-items:center; gap:6px; padding:10px 10px 8px; border-radius:14px;
   background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); width:100%; transition:all .2s ease; }
 .handbox.onbutton{ box-shadow:0 0 0 1px var(--gold), 0 0 18px rgba(240,195,77,0.35); border-color:var(--gold); }
-.handbox.bj{ box-shadow:0 0 0 1px var(--good), 0 0 18px rgba(79,191,107,0.35); border-color:var(--good); }
+.handbox.turn-active{ box-shadow:0 0 0 1px var(--accent), 0 0 16px rgba(62,198,224,0.3); border-color:var(--accent); }
+.handbox.has-bj{ box-shadow:0 0 0 2px var(--good), 0 0 26px rgba(79,191,107,0.55); border-color:var(--good); background:rgba(79,191,107,0.08); }
+.handbox.has-bj .hb-name{ color:var(--good); }
 .handbox.busted{ opacity:0.4; }
 .hb-head{ display:flex; align-items:center; gap:6px; }
 .avatar-sm{ width:26px; height:26px; border-radius:7px; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:800; color:#0a0e14; cursor:pointer; background-size:cover; background-position:center; border:1px solid rgba(255,255,255,0.35); flex:none; }
@@ -570,7 +572,7 @@ const RANKS = ['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
 const NAMES = ['You','Riley','Morgan','Taylor','Casey','Jordan','Sam'];
 
 let state = {
-  startBank:305, places:3, decks:6, chipReqMax:2, shoeReqMax:1,
+  startBank:305, places:3, decks:6, chipReqMax:2, shoeReqMax:2,
   players:[], buttonIndex:0, level:1, levelSeconds:300, remaining:300, paused:false, started:false,
   dealerEarnings:0, timerHandle:null, roundsPlayed:0,
   deck:[], dealerHand:[], dealerReveal:'none',
@@ -640,7 +642,7 @@ function newTournament(){
   state.startBank = updateStartBankPreview();
   state.places = parseInt(document.getElementById('placesInput').value);
   state.decks = parseInt(document.getElementById('deckInput').value);
-  state.chipReqMax = 2; state.shoeReqMax = 1;
+  state.chipReqMax = 2; state.shoeReqMax = 2;
 
   state.players = NAMES.map((n,i)=>({
     id:i, name:n, isYou:i===0, bank:state.startBank, photo:null,
@@ -885,7 +887,7 @@ function resolveRound(){
     });
     p.bank += seatDelta;
     if(p.bank<0) p.bank = 0;
-    results.push({ name:p.name, delta:seatDelta, bank:p.bank });
+    results.push({ name:p.name, delta:seatDelta, bank:p.bank, isYou:p.isYou });
     if(p.bank===0){ p.busted = true; celebrateBust(p.name); }
   });
   state.roundsPlayed++;
@@ -899,7 +901,7 @@ function showResults(dTotal, dBust, results){
     results.map(r=>{
       const cls = r.delta>0?'win':r.delta<0?'lose':'push';
       const sign = r.delta>0?'+':'';
-      return `<div class="results-row"><span>${r.name}</span><span class="delta ${cls}">${sign}$${r.delta} <span style="color:var(--text-dim); font-weight:400;">(bank $${r.bank})</span></span></div>`;
+      return `<div class="results-row"><span>${r.name}</span><span class="delta ${cls}">${sign}$${r.delta}${r.isYou?` <span style="color:var(--text-dim); font-weight:400;">(bank $${r.bank})</span>`:''}</span></div>`;
     }).join('');
   document.getElementById('resultsOverlay').classList.add('show');
 }
@@ -944,6 +946,16 @@ function spinWheel(done){
   }, 90);
 }
 
+function aiBetAmount(minBet, p){
+  // vary the bet based on how well-stocked they are, plus some natural variance —
+  // confident/flush players push bigger, short-stacked ones play closer to the floor
+  var bankFactor = Math.min(3, Math.max(0.4, p.bank / (state.startBank||500)));
+  var mult = 0.8 + Math.random()*1.8*bankFactor;
+  var amt = Math.round((minBet*mult)/5)*5;
+  amt = Math.max(minBet, Math.min(amt, p.bank));
+  return amt;
+}
+
 function startBettingRound(){
   state.phase = 'betting';
   const bet = minBet();
@@ -956,8 +968,8 @@ function startBettingRound(){
     betSelector.style.display = 'none';
     setMsg('Round '+state.level+' — everyone bets $'+bet+'. Press Deal when ready.');
   } else {
-    // round 2+: AI still bets the table minimum, you choose your own (floor = minBet)
-    state.players.forEach(p=>{ if(!p.busted && !p.isYou) p.pendingBet = bet; });
+    // round 2+: AI opponents bet variably based on their bank, you choose your own (floor = minBet)
+    state.players.forEach(p=>{ if(!p.busted && !p.isYou) p.pendingBet = aiBetAmount(bet, p); });
     const maxBet = Math.max(bet, you.bank);
     document.getElementById('betMinLabel').textContent = bet;
     const slider = document.getElementById('betSlider');
@@ -1113,7 +1125,8 @@ function renderFelt(){
     }
 
     var box = outer.querySelector('.handbox');
-    box.className = 'handbox '+extraClass+' '+(idx===state.buttonIndex?'onbutton':'')+' '+(isTurn?'bj':'')+' '+(p.busted?'busted':'');
+    var hasBj = p.hands && p.hands.some(function(h){ return h.status==='blackjack'; });
+    box.className = 'handbox '+extraClass+' '+(idx===state.buttonIndex?'onbutton':'')+' '+(isTurn?'turn-active':'')+' '+(p.busted?'busted':'')+' '+(hasBj?'has-bj':'');
 
     var avatarEl = box.querySelector('.avatar-sm');
     if(p.photo){ avatarEl.style.background='transparent'; avatarEl.style.backgroundImage='url('+p.photo+')'; avatarEl.textContent=''; }
