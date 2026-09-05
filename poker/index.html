@@ -515,6 +515,7 @@ footer .flipR{ display:inline-block; transform:scaleX(-1); }
     var alive = activeSeats();
     if(alive.length<=1){ endTournament(); return; }
 
+    msg(''); // clear any leftover message from the previous hand (e.g. "Everyone is all-in")
     state.deck = shuffle(freshDeck());
     state.community = [];
     state.phase = 'preflop';
@@ -641,7 +642,7 @@ footer .flipR{ display:inline-block; transform:scaleX(-1); }
 
   function isRoundOver(){
     var contesting = contestingSeats();
-    if(contesting.length<=1) return true;
+    if(contesting.length===0) return true;
     return contesting.every(function(s){
       return state.actedThisRound[s.id] && s.betThisRound===state.currentBet;
     });
@@ -1081,6 +1082,7 @@ footer .flipR{ display:inline-block; transform:scaleX(-1); }
     var canCheck = toCall===0;
     var maxBet = seat.chips + seat.betThisRound;
     var minRaiseTo = Math.min(maxBet, state.currentBet + state.minRaise);
+    var callLabel = canCheck ? 'Check' : 'Call $'+toCall;
 
     var html = '<div class="action-timer-row"><div class="action-timer-bar" id="actionTimerBar"></div></div>' +
     '<div class="raise-row">' +
@@ -1094,7 +1096,7 @@ footer .flipR{ display:inline-block; transform:scaleX(-1); }
     '</div>' +
     '<div class="action-bar">' +
       '<button class="actbtn danger" id="foldBtn">Fold</button>' +
-      '<button class="actbtn'+(canCheck?' good':'')+'" id="checkCallBtn">'+(canCheck?'Check':'Call $'+toCall)+'</button>' +
+      '<button class="actbtn'+(canCheck?' good':'')+'" id="checkCallBtn">'+callLabel+'</button>' +
       '<button class="actbtn primary" id="raiseBtn" '+(maxBet<=state.currentBet?'disabled':'')+'>'+(state.currentBet>0?'Raise to':'Bet')+'</button>' +
       '<button class="actbtn" id="allinBtn">All-in $'+maxBet+'</button>' +
     '</div>';
