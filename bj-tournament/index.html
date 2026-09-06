@@ -159,6 +159,16 @@ body{
 .bust-flash{ position:fixed; inset:0; display:flex; align-items:center; justify-content:center; pointer-events:none; z-index:61; opacity:0; }
 .bust-flash.show{ animation:bustPop 1.4s ease forwards; }
 .bust-flash .btxt{ font-family:Georgia,serif; font-style:italic; font-weight:800; font-size:26px; color:var(--danger); text-shadow:0 0 20px rgba(224,100,90,0.6); }
+.gameover-flash{ position:fixed; inset:0; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:12px; pointer-events:none; z-index:70; opacity:0; background:rgba(4,2,10,0); }
+.gameover-flash.show{ animation:gameOverPop 2s ease forwards; }
+.gameover-flash .go-title{ font-family:Georgia,serif; font-style:italic; font-weight:800; font-size:clamp(36px,8vw,72px); color:var(--gold); text-shadow:0 0 40px rgba(240,195,77,0.8); letter-spacing:3px; }
+.gameover-flash .go-sub{ font-size:14px; color:var(--dark-text); letter-spacing:1.5px; text-transform:uppercase; text-align:center; padding:0 20px; }
+@keyframes gameOverPop{ 0%{opacity:0; transform:scale(0.7); background:rgba(4,2,10,0);} 12%{opacity:1; transform:scale(1.06); background:rgba(4,2,10,0.55);} 22%{transform:scale(1); background:rgba(4,2,10,0.55);} 85%{opacity:1; background:rgba(4,2,10,0.55);} 100%{opacity:0; background:rgba(4,2,10,0);} }
+.winner-flash{ position:fixed; inset:0; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:10px; pointer-events:none; z-index:71; opacity:0; }
+.winner-flash.show{ animation:winnerPop 2.4s ease forwards; }
+.winner-flash .w-title{ font-family:Georgia,serif; font-style:italic; font-weight:800; font-size:clamp(26px,6vw,48px); color:var(--good); text-shadow:0 0 40px rgba(79,191,107,0.8); text-align:center; padding:0 20px; }
+.winner-flash .w-sub{ font-size:16px; color:var(--gold); font-weight:700; letter-spacing:1px; text-transform:uppercase; }
+@keyframes winnerPop{ 0%{opacity:0; transform:scale(0.6);} 15%{opacity:1; transform:scale(1.08);} 25%{transform:scale(1);} 85%{opacity:1;} 100%{opacity:0;} }
 @keyframes bustPop{ 0%{ opacity:0; transform:scale(0.8);} 20%{ opacity:1; transform:scale(1.05);} 80%{opacity:1;} 100%{opacity:0;} }
 .results-row{ display:flex; justify-content:space-between; align-items:center; padding:9px 12px; border-radius:10px; background:var(--panel-2); margin-bottom:7px; font-size:13px; }
 .results-row .delta.win{ color:var(--good); font-weight:700; }
@@ -174,6 +184,7 @@ body{
 .hb-head{ display:flex; align-items:center; gap:6px; }
 .avatar-sm{ width:26px; height:26px; border-radius:7px; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:800; color:#0a0e14; cursor:pointer; background-size:cover; background-position:center; border:1px solid rgba(255,255,255,0.35); flex:none; }
 .hb-name{ font-size:12px; font-weight:700; color:var(--dark-text); }
+.your-bank-badge{ font-size:10.5px; font-weight:700; color:var(--gold); background:rgba(240,195,77,0.12); border:1px solid rgba(240,195,77,0.35); border-radius:8px; padding:2px 8px; margin-bottom:4px; text-align:center; }
 .button-token{ width:14px; height:14px; border-radius:50%; background:radial-gradient(circle at 35% 30%, #ffe9a8, var(--gold)); box-shadow:0 0 6px rgba(240,195,77,0.7); flex:none; }
 .hb-cards{ display:flex; min-height:0; }
 .hb-cards .card{ width:42px; height:59px; font-size:15px; border-radius:6px; margin-left:-12px; }
@@ -651,6 +662,9 @@ function newTournament(){
   state.buttonIndex = 0; state.level = 1; state.levelSeconds = 300; state.remaining = 300;
   state.paused = false; state.started = false; state.dealerEarnings = 0; state.roundsPlayed = 0;
   state.deck = buildShoe(state.decks);
+  var fullShoeSize = state.decks*52;
+  state.cutIndex = Math.floor(fullShoeSize * (0.75 + Math.random()*0.10));
+  state.tournamentOver = false;
   state.dealerHand = []; state.dealerReveal = 'none';
   state.phase = 'pregame'; state.turnSeat = -1; state.turnHand = 0;
   state.chipReqUsed = 0; state.shoeReqUsed = 0; state.isFirstRound = true;
@@ -769,6 +783,27 @@ function seatOrder(){
 
 function advanceTurn(firstCall){
   const order = seatOrder();
+  if(!firstCall && state.turnSeat>=0){
+    // check the SAME player's remaining split hands before moving to the next player
+    const cur = state.players[state.turnSeat];
+    for(let hi=state.turnHand+1; hi<cur.hands.length; hi++){
+      if(cur.hands[hi].status==='active'){
+        state.turnHand = hi;
+        if(cur.isYou){
+          document.getElementById('actingRail').style.display = 'flex';
+          setMsg('Your turn — Hit, Stand, Double, or Split.');
+          updateActionRails();
+          renderAll();
+        } else {
+          document.getElementById('actingRail').style.display = 'none';
+          setMsg(cur.name+' is thinking…');
+          renderAll();
+          setTimeout(computerAct, 550);
+        }
+        return;
+      }
+    }
+  }
   let startIdx = firstCall ? 0 : order.indexOf(state.turnSeat)+1;
   for(let i=startIdx;i<order.length;i++){
     const seatIdx = order[i];
@@ -901,7 +936,7 @@ function showResults(dTotal, dBust, results){
     results.map(r=>{
       const cls = r.delta>0?'win':r.delta<0?'lose':'push';
       const sign = r.delta>0?'+':'';
-      return `<div class="results-row"><span>${r.name}</span><span class="delta ${cls}">${sign}$${r.delta}${r.isYou?` <span style="color:var(--text-dim); font-weight:400;">(bank $${r.bank})</span>`:''}</span></div>`;
+      return `<div class="results-row"><span>${r.name}</span><span class="delta ${cls}">${sign}$${r.delta}</span></div>`;
     }).join('');
   document.getElementById('resultsOverlay').classList.add('show');
 }
@@ -910,12 +945,30 @@ let roundAdvanced = false;
 function advanceToNextRound(){
   if(roundAdvanced) return; roundAdvanced = true;
   setTimeout(()=>{ roundAdvanced = false; }, 50);
+  if(state.tournamentOver) return;
 
   const stillIn = state.players.filter(p=>!p.busted);
   if(stillIn.length<2){
+    state.tournamentOver = true;
     setMsg('Tournament over — only one seat left standing!');
     state.phase = 'pregame';
     updateActionRails();
+    celebrateGameOver();
+    setTimeout(()=>{
+      if(stillIn.length===1) celebrateWinner(stillIn[0].name);
+      setTimeout(()=> showTournamentStandings(), stillIn.length===1 ? 1200 : 0);
+    }, 1600);
+    return;
+  }
+
+  var fullShoeSize = state.decks*52;
+  if(state.deck.length <= (fullShoeSize - state.cutIndex)){
+    state.tournamentOver = true;
+    setMsg('Cut card reached — that\'s game over for this shoe.');
+    state.phase = 'pregame';
+    updateActionRails();
+    celebrateGameOver();
+    setTimeout(()=> showTournamentStandings(), 1600);
     return;
   }
 
@@ -1119,6 +1172,7 @@ function renderFelt(){
             '<div class="avatar-sm"'+(p.isYou?' onclick="triggerPhotoUpload('+idx+')"':'')+'></div>' +
             '<div class="hb-name"></div>' +
           '</div>' +
+          (slot.hero ? '<div class="your-bank-badge" id="yourBankBadge"></div>' : '') +
           '<div class="hb-hands"></div>' +
         '</div>';
       wrap.appendChild(outer);
@@ -1134,6 +1188,10 @@ function renderFelt(){
 
     box.querySelector('.button-slot').innerHTML = idx===state.buttonIndex ? '<div class="button-token" title="Dealer button"></div>' : '';
     box.querySelector('.hb-name').textContent = p.name+(p.isYou?' (you)':'');
+    if(slot.hero){
+      var bankBadge = box.querySelector('.your-bank-badge');
+      if(bankBadge) bankBadge.textContent = 'Your bank: $'+p.bank.toLocaleString();
+    }
 
     // only touch the hands/cards markup when it actually changed, so the deal
     // animation doesn't retrigger on every action across the whole table
@@ -1202,7 +1260,7 @@ document.getElementById('chipCountBtn').onclick = ()=>{
   if(state.chipReqUsed>=state.chipReqMax) return;
   state.chipReqUsed++;
   document.getElementById('chipCountList').innerHTML = state.players.filter(p=>!p.isYou).map(p=>
-    '<div class="standing-row"><div class="nm">'+p.name+(p.busted?' (BUST)':'')+'</div>'+chipDotsHTML(p.bank)+'</div>'
+    '<div class="standing-row"><div class="nm">'+p.name+(p.busted?' (BUST)':'')+'</div><div class="amt">'+(p.busted?'eliminated':'$'+p.bank.toLocaleString())+'</div></div>'
   ).join('');
   document.getElementById('chipCountOverlay').classList.add('show');
   updatePricingNote();
@@ -1215,8 +1273,7 @@ document.getElementById('shoeCountBtn').onclick = ()=>{
   updatePricingNote();
 };
 
-document.getElementById('endBtn').onclick = ()=>{
-  if(state.roundsPlayed===0){ setMsg('No hands have been played yet — play at least one round first.'); return; }
+function showTournamentStandings(winnerName){
   const table = PRIZE_TABLE[state.places];
   const ranked = [...state.players].sort((a,b)=>b.bank-a.bank);
   document.getElementById('standingsList').innerHTML = ranked.map((p,i)=>{
@@ -1227,6 +1284,27 @@ document.getElementById('endBtn').onclick = ()=>{
   document.getElementById('standingsNote').textContent =
     'Based on '+state.roundsPlayed+' round(s) played · Dealer earnings this tournament: $'+state.dealerEarnings.toLocaleString();
   document.getElementById('standingsOverlay').classList.add('show');
+}
+
+function celebrateGameOver(){
+  const flash = document.createElement('div');
+  flash.className = 'gameover-flash show';
+  flash.innerHTML = '<div class="go-title">GAME OVER</div><div class="go-sub">Final standings coming up</div>';
+  document.body.appendChild(flash);
+  setTimeout(()=>flash.remove(), 2200);
+}
+
+function celebrateWinner(name){
+  const flash = document.createElement('div');
+  flash.className = 'winner-flash show';
+  flash.innerHTML = '<div class="w-title">'+name+' wins the table!</div><div class="w-sub">Last one standing</div>';
+  document.body.appendChild(flash);
+  setTimeout(()=>flash.remove(), 2600);
+}
+
+document.getElementById('endBtn').onclick = ()=>{
+  if(state.roundsPlayed===0){ setMsg('No hands have been played yet — play at least one round first.'); return; }
+  showTournamentStandings();
 };
 
 function closeOverlay(id){
