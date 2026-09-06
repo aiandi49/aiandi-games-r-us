@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Roulette Strategy Lab — AI &amp; I's Games R Us</title>
+<style>
+:root{
+  --gold:#f0c34d; --gold-soft:#c9a24b;
+  --accent:#3ec6e0; --accent-glow:rgba(62,198,224,0.55);
+  --violet:#a473ff; --violet-glow:rgba(164,115,255,0.5);
+  --danger:#e0645a; --good:#4fbf6b;
+  --dark-text:#f1eef8; --dark-text-dim:rgba(241,238,248,0.62);
+}
+html[data-theme="dark"]{
+  --bg-0:#07050f; --bg-1:#0e0a1e; --panel:#151129; --panel-2:#100c20;
+  --felt-1:#123a52; --felt-2:#1c0f3a; --felt-3:#3a1a52;
+  --line:rgba(240,195,77,0.28); --text:#f1eef8; --text-dim:rgba(241,238,248,0.58);
+}
+html[data-theme="light"]{
+  --bg-0:#f3eefb; --bg-1:#e9e0fa; --panel:#ffffff; --panel-2:#f6f2fc;
+  --felt-1:#1c5f82; --felt-2:#3a2064; --felt-3:#5a2a78;
+  --line:rgba(140,90,190,0.35); --text:#160f28; --text-dim:rgba(22,15,40,0.62);
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;overflow-x:hidden;}
+body{
+  min-height:100vh; color:var(--text); font-family:'Segoe UI',Arial,sans-serif;
+  background:
+    radial-gradient(ellipse 900px 600px at 15% -10%, rgba(164,115,255,0.28), transparent 60%),
+    radial-gradient(ellipse 900px 700px at 90% 10%, rgba(62,198,224,0.22), transparent 55%),
+    radial-gradient(ellipse 1200px 900px at 50% 110%, rgba(90,30,120,0.35), transparent 60%),
+    linear-gradient(180deg, var(--bg-1), var(--bg-0) 55%);
+  background-attachment:fixed; overflow-x:hidden;
+}
+.swirl{ position:fixed; inset:0; z-index:0; pointer-events:none; opacity:0.5; overflow:hidden; }
+.swirl span{ position:absolute; border-radius:50%; filter:blur(60px);
+  background:conic-gradient(from 0deg, rgba(164,115,255,0.35), rgba(62,198,224,0.3), rgba(240,195,77,0.22), rgba(164,115,255,0.35));
+  animation:drift 26s linear infinite; }
+.swirl span:nth-child(1){ width:520px; height:520px; top:-160px; left:-140px; animation-duration:32s; }
+.swirl span:nth-child(2){ width:420px; height:420px; bottom:-140px; right:-120px; animation-duration:24s; animation-direction:reverse; }
+.swirl span:nth-child(3){ width:340px; height:340px; top:40%; left:60%; animation-duration:40s; }
+@keyframes drift{ 0%{ transform:rotate(0deg) scale(1);} 50%{ transform:rotate(180deg) scale(1.12);} 100%{ transform:rotate(360deg) scale(1);} }
+
+.wrap{ position:relative; z-index:1; max-width:1600px; margin:0 auto; padding:16px 14px 70px; }
+
+.topbar{ display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; margin-bottom:10px; }
+.brand{ display:flex; flex-direction:column; line-height:1.05; }
+.brand .ai{ font-family:Georgia,serif; font-style:italic; font-weight:700; font-size:22px; color:var(--gold); letter-spacing:0.5px; }
+.brand .gru{ font-size:11px; font-weight:800; letter-spacing:3px; color:var(--accent); text-transform:uppercase; }
+.brand .flipR{ display:inline-block; transform:scaleX(-1); }
+.brand .tagline{ font-size:9.5px; letter-spacing:2px; text-transform:uppercase; color:var(--text-dim); margin-top:2px; }
+.topbtns{ display:flex; gap:6px; flex-wrap:wrap; }
+.iconbtn{ background:var(--panel); border:1px solid var(--line); color:var(--text); border-radius:9px; padding:8px 12px; font-size:11px; letter-spacing:0.5px; cursor:pointer; transition:all .15s ease; }
+.iconbtn:hover{ border-color:var(--gold); color:var(--gold); }
+.fontctl{ display:flex; align-items:center; gap:1px; background:var(--panel); border:1px solid var(--line); border-radius:9px; padding:3px; }
+.fontctl button{ background:none; border:none; color:var(--text); font-family:inherit; cursor:pointer; padding:6px 10px; border-radius:7px; font-size:11px; font-weight:700; line-height:1; }
+.fontctl button:hover{ color:var(--gold); }
+.fontctl button.active{ background:var(--panel-2); color:var(--gold); }
+
+.title-hero{ text-align:center; margin:10px 0 6px; }
+.title-hero h1{ font-family:Georgia,serif; font-style:italic; font-size:clamp(26px,6vw,40px); margin:0; letter-spacing:0.5px;
+  background:linear-gradient(95deg,var(--gold),var(--accent) 55%,var(--violet)); -webkit-background-clip:text; background-clip:text; color:transparent; }
+.title-hero p{ margin:6px 0 0; font-size:11.5px; letter-spacing:2px; text-transform:uppercase; color:var(--text-dim); }
+.disclaimer-strip{ text-align:center; font-size:11px; line-height:1.6; color:var(--text-dim); max-width:640px; margin:12px auto 20px; padding:10px 16px; border:1px dashed var(--line); border-radius:14px; }
+.disclaimer-strip b{ color:var(--text); }
+
+.about-drop{ border:1px solid var(--line); border-radius:18px; background:linear-gradient(180deg,var(--panel),var(--panel-2)); margin-bottom:20px; overflow:hidden; }
+.about-toggle{ width:100%; display:flex; align-items:center; justify-content:space-between; gap:10px; background:none; border:none; color:var(--text); padding:16px 20px; font-size:13px; font-weight:700; letter-spacing:0.5px; cursor:pointer; text-align:left; }
+.about-toggle:hover{ color:var(--gold); }
+.about-toggle .chev{ transition:transform .25s ease; color:var(--text-dim); font-size:12px; flex:none; }
+.about-toggle[aria-expanded="true"] .chev{ transform:rotate(180deg); }
+.about-panel{ max-height:0; overflow:hidden; transition:max-height .35s ease; }
+.about-panel.open{ max-height:1200px; }
+.about-panel-inner{ padding:0 20px 20px; display:grid; gap:16px; }
+.about-item{ border-top:1px solid var(--line); padding-top:14px; }
+.about-item:first-child{ border-top:none; padding-top:0; }
+.about-item h4{ margin:0 0 4px; font-family:Georgia,serif; font-style:italic; font-size:15px; color:var(--gold); }
+.about-item h4.accent{ color:var(--accent); }
+.about-item h4.violet{ color:var(--violet); }
+.about-item p{ margin:0; font-size:12.5px; line-height:1.7; color:var(--text-dim); }
+
+section.lab-section{ margin-bottom:26px; }
+.section-head{ text-align:center; margin-bottom:14px; }
+.section-head .kicker{ font-size:10.5px; letter-spacing:2.5px; text-transform:uppercase; color:var(--accent); font-weight:800; }
+.section-head h2{ font-family:Georgia,serif; font-style:italic; font-size:clamp(20px,4vw,28px); margin:4px 0 0; color:var(--text); }
+.section-head p.sub{ margin:6px auto 0; font-size:12.5px; line-height:1.7; color:var(--text-dim); max-width:64ch; }
+
+.rules-card{ background:linear-gradient(180deg,var(--panel),var(--panel-2)); border:1px solid var(--line); border-radius:16px; padding:18px 18px 20px; margin-bottom:14px; }
+.rules-card h3{ margin:0 0 8px; font-size:14px; letter-spacing:1px; text-transform:uppercase; color:var(--gold); text-align:center; }
+.rules-card h4{ margin:0 0 6px; font-size:12.5px; letter-spacing:0.5px; color:var(--accent); text-align:center; }
+.rules-card p, .rules-card li{ font-size:12.5px; line-height:1.75; color:var(--text-dim); }
+.rules-card ul{ margin:0; padding-left:18px; }
+.rules-card ul li b{ color:var(--text); }
+
+.edge-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:6px; }
+@media (max-width:760px){ .edge-grid{ grid-template-columns:1fr; } }
+.edge-card{ background:radial-gradient(ellipse at 50% 0%, var(--felt-1), var(--felt-3) 75%, var(--felt-2) 100%); border:1px solid var(--line); border-radius:16px; padding:18px 16px; text-align:center; color:var(--dark-text); }
+.edge-card .wheel-name{ font-size:11px; letter-spacing:1.5px; text-transform:uppercase; color:var(--dark-text-dim); }
+.edge-card .edge-num{ font-family:Georgia,serif; font-size:34px; font-weight:700; color:var(--gold); margin:6px 0 2px; }
+.edge-card .edge-num.accent{ color:var(--accent); }
+.edge-card .edge-num.good{ color:var(--good); }
+.edge-card .edge-note{ font-size:11.5px; line-height:1.6; color:var(--dark-text-dim); }
+
+.chipselect{ display:flex; flex-wrap:wrap; gap:6px; justify-content:center; margin:10px 0; }
+.chipselect button{ background:var(--panel-2); border:1px solid var(--line); color:var(--text); border-radius:20px; padding:8px 16px; font-size:11.5px; font-weight:700; letter-spacing:0.5px; cursor:pointer; transition:all .15s ease; }
+.chipselect button:hover{ border-color:var(--gold); }
+.chipselect button.active{ background:linear-gradient(180deg,var(--gold),var(--gold-soft)); color:#1a1305; border-color:transparent; }
+
+.actbtn{ flex:1 1 100px; max-width:220px; padding:12px 18px; border-radius:12px; border:1px solid var(--line); background:var(--panel); color:var(--text); font-size:12px; letter-spacing:1px; text-transform:uppercase; font-weight:700; cursor:pointer; transition:all .15s ease; }
+.actbtn:hover:not(:disabled){ border-color:var(--gold); color:var(--gold); transform:translateY(-1px); }
+.actbtn:disabled{ opacity:0.4; cursor:not-allowed; }
+.actbtn.primary{ background:linear-gradient(180deg,var(--gold),var(--gold-soft)); color:#1a1305; border:none; }
+.actbtn.accent2{ background:linear-gradient(180deg,var(--accent),#2a9ab5); color:#04252c; border:none; }
+.btn-row{ display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin:14px 0 4px; }
+
+.wheel-stage{ display:flex; flex-direction:column; align-items:center; gap:14px; }
+.wheel-frame{ position:relative; width:min(320px,86vw); aspect-ratio:1/1; }
+.wheel-frame svg{ width:100%; height:100%; display:block; filter:drop-shadow(0 14px 30px rgba(0,0,0,0.5)); }
+#wheelGroup{ transform-origin:150px 150px; transition:transform 3.4s cubic-bezier(.17,.67,.16,1); }
+.wheel-pointer{ position:absolute; top:-6px; left:50%; transform:translateX(-50%); width:0; height:0;
+  border-left:11px solid transparent; border-right:11px solid transparent; border-top:18px solid var(--gold);
+  filter:drop-shadow(0 2px 4px rgba(0,0,0,0.5)); z-index:3; }
+.wheel-result{ position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:74px; height:74px; border-radius:50%;
+  background:radial-gradient(circle at 35% 30%, #2a2438, #100c20); border:3px solid var(--gold); display:flex; align-items:center; justify-content:center;
+  font-family:Georgia,serif; font-weight:700; font-size:24px; color:#fff; z-index:2; box-shadow:0 6px 16px rgba(0,0,0,0.5); }
+.wheel-result.red{ background:radial-gradient(circle at 35% 30%, #d6564a, #7c1d18); }
+.wheel-result.black{ background:radial-gradient(circle at 35% 30%, #3a3a42, #101014); }
+.wheel-result.green{ background:radial-gradient(circle at 35% 30%, #2f8f57, #124a2c); }
+
+.history-strip{ display:flex; gap:6px; flex-wrap:wrap; justify-content:center; max-width:560px; margin:0 auto; }
+.num-chip{ width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:800; color:#fff;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,0.15), 0 3px 6px rgba(0,0,0,0.35); flex:none; }
+.num-chip.red{ background:linear-gradient(180deg,#e0645a,#a83229); }
+.num-chip.black{ background:linear-gradient(180deg,#3a3a42,#161619); }
+.num-chip.green{ background:linear-gradient(180deg,#4fbf6b,#1f7a3f); }
+.num-chip.ghost{ opacity:0.28; background:var(--panel-2); box-shadow:none; color:var(--text-dim); }
+
+.stat-strip{ display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin:16px 0 4px; max-width:560px; margin-left:auto; margin-right:auto; }
+@media (max-width:520px){ .stat-strip{ grid-template-columns:repeat(2,1fr); } }
+.stat-card{ background:linear-gradient(180deg,var(--panel),var(--panel-2)); border:1px solid var(--line); border-radius:12px; padding:10px 8px; text-align:center; }
+.stat-card .l{ font-size:8.5px; letter-spacing:1.4px; text-transform:uppercase; color:var(--text-dim); }
+.stat-card .v{ font-size:18px; font-weight:700; color:var(--gold); margin-top:2px; font-variant-numeric:tabular-nums; }
+.stat-card .v.accent{ color:var(--accent); }
+
+.field{ margin-bottom:12px; }
+.field label{ display:block; font-size:10px; letter-spacing:1.5px; text-transform:uppercase; color:var(--text-dim); margin-bottom:5px; }
+.field input[type=number], .field select{ width:100%; background:var(--panel-2); border:1px solid var(--line); border-radius:9px; color:var(--text); padding:9px 11px; font-size:14px; }
+.field-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:12px 14px; max-width:640px; margin:0 auto; }
+@media (max-width:560px){ .field-grid{ grid-template-columns:1fr; } }
+
+.bar-compare-wrap{ display:grid; grid-template-columns:1fr 1fr; gap:20px; max-width:620px; margin:16px auto 0; }
+@media (max-width:560px){ .bar-compare-wrap{ grid-template-columns:1fr; } }
+.bar-compare h5{ text-align:center; font-size:11px; letter-spacing:1.2px; text-transform:uppercase; color:var(--text-dim); margin:0 0 10px; }
+.bar-row{ display:flex; align-items:center; gap:8px; margin-bottom:8px; }
+.bar-row .lbl{ width:44px; font-size:11px; font-weight:700; color:var(--text-dim); flex:none; }
+.bar-row .track{ flex:1; height:16px; background:var(--panel-2); border-radius:8px; overflow:hidden; border:1px solid var(--line); }
+.bar-row .fill{ height:100%; border-radius:8px; transition:width .5s ease; }
+.bar-row .fill.red{ background:linear-gradient(90deg,#e0645a,#a83229); }
+.bar-row .fill.black{ background:linear-gradient(90deg,#54545e,#26262c); }
+.bar-row .fill.green{ background:linear-gradient(90deg,#4fbf6b,#1f7a3f); }
+.bar-row .pct{ width:50px; font-size:11px; font-weight:700; color:var(--text); text-align:right; flex:none; font-variant-numeric:tabular-nums; }
+.streak-note{ text-align:center; font-size:12px; color:var(--text-dim); margin-top:12px; line-height:1.7; }
+.streak-note b{ color:var(--good); }
+
+.strategy-explain{ display:grid; grid-template-columns:repeat(2,1fr); gap:12px; margin:14px 0; }
+@media (max-width:560px){ .strategy-explain{ grid-template-columns:1fr; } }
+.strategy-explain .se-card{ border:1px solid var(--line); border-radius:12px; padding:12px 14px; background:var(--panel-2); }
+.strategy-explain .se-card h5{ margin:0 0 4px; font-size:12.5px; color:var(--accent); }
+.strategy-explain .se-card p{ margin:0; font-size:11.5px; line-height:1.6; color:var(--text-dim); }
+
+.sim-chart-wrap{ max-width:680px; margin:16px auto 0; }
+.sim-chart-wrap svg{ width:100%; height:auto; display:block; }
+.sim-legend{ display:flex; gap:14px; justify-content:center; flex-wrap:wrap; margin-top:8px; font-size:11px; color:var(--text-dim); }
+.sim-legend span{ display:inline-flex; align-items:center; gap:5px; }
+.sim-legend i{ width:10px; height:10px; border-radius:3px; display:inline-block; }
+
+.result-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin:16px 0 6px; max-width:800px; margin-left:auto; margin-right:auto; }
+@media (max-width:700px){ .result-grid{ grid-template-columns:repeat(2,1fr); } }
+.result-card{ background:linear-gradient(180deg,var(--panel),var(--panel-2)); border:1px solid var(--line); border-radius:12px; padding:12px 10px; text-align:center; }
+.result-card .l{ font-size:9px; letter-spacing:1px; text-transform:uppercase; color:var(--text-dim); }
+.result-card .v{ font-size:20px; font-weight:700; color:var(--gold); margin-top:3px; font-variant-numeric:tabular-nums; }
+.result-card .v.danger{ color:var(--danger); }
+.result-card .v.good{ color:var(--good); }
+
+.data-table{ width:100%; border-collapse:collapse; margin-top:8px; }
+.data-table th, .data-table td{ padding:9px 10px; font-size:12px; text-align:center; border-bottom:1px solid var(--line); color:var(--text-dim); }
+.data-table th{ color:var(--text); font-size:10.5px; letter-spacing:0.5px; text-transform:uppercase; }
+.data-table td:first-child, .data-table th:first-child{ text-align:left; color:var(--text); font-weight:700; }
+@media (max-width:640px){
+  .data-table thead{ display:none; }
+  .data-table, .data-table tbody, .data-table tr, .data-table td{ display:block; width:100%; }
+  .data-table tr{ background:var(--panel-2); border:1px solid var(--line); border-radius:12px; padding:10px 12px; margin-bottom:10px; }
+  .data-table td{ display:flex; justify-content:space-between; gap:10px; border-bottom:none; padding:5px 2px; text-align:right; }
+  .data-table td:first-child{ font-size:13px; padding-bottom:8px; border-bottom:1px dashed var(--line); margin-bottom:4px; }
+  .data-table td::before{ content:attr(data-label); font-size:10px; letter-spacing:0.8px; text-transform:uppercase; color:var(--text-dim); text-align:left; }
+}
+
+.tip-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:14px; }
+@media (max-width:700px){ .tip-grid{ grid-template-columns:1fr; } }
+.tip-card{ background:var(--panel-2); border:1px solid var(--line); border-radius:14px; padding:14px 16px; }
+.tip-card .num{ font-family:Georgia,serif; font-style:italic; font-size:22px; color:var(--gold); margin-bottom:4px; }
+.tip-card h5{ margin:0 0 6px; font-size:13px; color:var(--text); }
+.tip-card p{ margin:0; font-size:12px; line-height:1.65; color:var(--text-dim); }
+
+.coming-soon{ border:1px dashed var(--line); border-radius:22px; padding:20px 20px; text-align:center; color:var(--text-dim); font-size:12px; letter-spacing:0.5px; margin-bottom:20px; }
+.coming-soon b{ color:var(--text); }
+
+.backlink{ text-align:center; margin:0 0 14px; }
+.backlink a{ font-size:11px; letter-spacing:0.5px; color:var(--text-dim); text-decoration:none; border-bottom:1px dotted var(--line); padding-bottom:2px; }
+.backlink a:hover{ color:var(--gold); }
+footer{ text-align:center; font-size:10px; color:var(--text-dim); letter-spacing:1px; margin-top:18px; line-height:1.8; }
+footer .flipR{ display:inline-block; transform:scaleX(-1); }
+
+@media (max-width:520px){
+  .wrap{ padding:12px 8px 60px; }
+  .topbar{ flex-direction:column; text-align:center; align-items:center; }
+  .brand{ align-items:center; }
+}
+</style>
+</head>
+<body>
+
+<div class="swirl"><span></span><span></span><span></span></div>
+
+<div class="wrap">
+
+  <div class="topbar">
+    <div class="brand">
+      <span class="ai">AI &amp; I</span>
+      <span class="gru">Games <span class="flipR">R</span> Us</span>
+      <span class="tagline">Roulette Strategy Lab</span>
+    </div>
+    <div class="topbtns">
+      <button class="iconbtn" id="themeBtn">🌙 Theme</button>
+      <div class="fontctl" role="group" aria-label="Text size">
+        <button type="button" data-fs="sm" aria-label="Small text">A-</button>
+        <button type="button" data-fs="md" class="active" aria-label="Default text">A</button>
+        <button type="button" data-fs="lg" aria-label="Large text">A+</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="title-hero">
+    <h1>Roulette Strategy Lab</h1>
+    <p>Learn the math before you sit down at a real table</p>
+  </div>
+
+  <div class="disclaimer-strip">This page runs a real, unweighted random simulator — <b>not</b> a real-money game and not connected to any casino. Nothing here predicts or improves real-world outcomes; the whole point is to show you honestly why nothing can.</div>
+
+  <div class="about-drop">
+    <button class="about-toggle" id="aboutToggle" aria-expanded="false" aria-controls="aboutPanel">
+      <span>ⓘ What's in the Strategy Lab?</span>
+      <span class="chev">▾</span>
+    </button>
+    <div class="about-panel" id="aboutPanel">
+      <div class="about-panel-inner">
+        <div class="about-item">
+          <h4>The One Rule</h4>
+          <p>Every spin is independent — the wheel has no memory of what just happened. This is the single fact that every roulette "system" tries to get you to forget, so it comes first.</p>
+        </div>
+        <div class="about-item">
+          <h4 class="accent">Live Spin Simulator</h4>
+          <p>A real wheel, spun with true random numbers, with the same kind of "last spins" history board and live statistics you'd see on a machine at a casino — so you can watch it in action instead of taking our word for it.</p>
+        </div>
+        <div class="about-item">
+          <h4 class="violet">Streak Buster</h4>
+          <p>Run thousands of simulated spins and see, with real data, what actually happens right after a streak — like 4 reds in a row. Spoiler: it looks almost exactly like a fresh spin.</p>
+        </div>
+        <div class="about-item">
+          <h4>Bankroll &amp; Strategy Lab</h4>
+          <p>Set a starting bankroll, pick a betting system — flat, Martingale, Fibonacci, D'Alembert — and run hundreds of simulated sessions to see the honest range of outcomes, not just one lucky run.</p>
+        </div>
+        <div class="about-item">
+          <h4 class="accent">Table Selection &amp; Money Management</h4>
+          <p>The one real lever you can pull (which wheel and which rules you sit down at), the honest payout table, and practical habits for treating this as entertainment with a price tag — not an investment.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ SECTION 1: THE ONE RULE ============ -->
+  <section class="lab-section">
+    <div class="section-head">
+      <div class="kicker">Start Here</div>
+      <h2>The One Rule That Beats Every System</h2>
+      <p class="sub">The wheel doesn't know what it just landed on. Every spin is a fresh, independent event — so no pattern, streak, or "law of averages" can shift the odds of the next one.</p>
+    </div>
+    <div class="edge-grid">
+      <div class="edge-card">
+        <div class="wheel-name">American Wheel (0 &amp; 00)</div>
+        <div class="edge-num">5.26%</div>
+        <div class="edge-note">House edge on almost every bet — two green pockets out of 38.</div>
+      </div>
+      <div class="edge-card">
+        <div class="wheel-name">European Wheel (single 0)</div>
+        <div class="edge-num accent">2.70%</div>
+        <div class="edge-note">One green pocket out of 37 — roughly half the edge of American.</div>
+      </div>
+      <div class="edge-card">
+        <div class="wheel-name">European + La Partage / En Prison</div>
+        <div class="edge-num good">1.35%</div>
+        <div class="edge-note">On even-money bets only, when the rule is offered — the best realistic edge in the game.</div>
+      </div>
+    </div>
+    <div class="rules-card">
+      <p style="text-align:center;">This is the only real "strategy" that changes your math: <b style="color:var(--text);">which wheel and which rules you choose to sit down at.</b> Bet timing, streak-chasing, and progressions never touch the edge above — they only change how fast and how dramatically you experience it.</p>
+    </div>
+  </section>
+
+  <!-- ============ SECTION 2: LIVE SPIN SIMULATOR ============ -->
+  <section class="lab-section">
+    <div class="section-head">
+      <div class="kicker">Try It Yourself</div>
+      <h2>Live Spin Simulator</h2>
+      <p class="sub">This is the same kind of "last numbers" board and stats readout you'd see glowing on a real machine. Spin it a bunch — then look at the section right after this one.</p>
+    </div>
+    <div class="rules-card">
+      <div class="chipselect" role="group" aria-label="Wheel type" id="wheelTypeSelect">
+        <button type="button" data-wheel="double" class="active">American — 0 &amp; 00 (38 pockets)</button>
+        <button type="button" data-wheel="single">European — single 0 (37 pockets)</button>
+      </div>
+      <div class="wheel-stage">
+        <div class="wheel-frame">
+          <div class="wheel-pointer"></div>
+          <svg viewBox="0 0 300 300">
+            <g id="wheelGroup"></g>
+          </svg>
+          <div class="wheel-result" id="wheelResult">—</div>
+        </div>
+        <div class="btn-row">
+          <button class="actbtn primary" id="spinBtn">Spin the Wheel</button>
+          <button class="actbtn" id="resetSpinBtn">Reset History</button>
+        </div>
+        <div>
+          <div style="text-align:center; font-size:10px; letter-spacing:1.4px; text-transform:uppercase; color:var(--text-dim); margin-bottom:8px;">Last Spins</div>
+          <div class="history-strip" id="historyStrip"></div>
+        </div>
+        <div class="stat-strip">
+          <div class="stat-card"><div class="l">Spins</div><div class="v" id="statSpins">0</div></div>
+          <div class="stat-card"><div class="l">Red</div><div class="v" id="statRed">0%</div></div>
+          <div class="stat-card"><div class="l">Black</div><div class="v accent" id="statBlack">0%</div></div>
+          <div class="stat-card"><div class="l">Current Streak</div><div class="v" id="statStreak">—</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SECTION 3: STREAK FALLACY ============ -->
+  <section class="lab-section">
+    <div class="section-head">
+      <div class="kicker">The Big Question</div>
+      <h2>After 4 Reds In a Row — Is Black "Due"?</h2>
+      <p class="sub">Pick a streak length and color, then run a few thousand simulated spins. We'll scan for every time that exact streak happened, and show you what actually came right after it.</p>
+    </div>
+    <div class="rules-card">
+      <div class="chipselect" id="streakLenSelect" role="group" aria-label="Streak length">
+        <button type="button" data-len="2">2 in a row</button>
+        <button type="button" data-len="3">3 in a row</button>
+        <button type="button" data-len="4" class="active">4 in a row</button>
+        <button type="button" data-len="5">5 in a row</button>
+        <button type="button" data-len="6">6 in a row</button>
+      </div>
+      <div class="chipselect" id="streakColorSelect" role="group" aria-label="Streak color">
+        <button type="button" data-color="red" class="active">Streak of Red</button>
+        <button type="button" data-color="black">Streak of Black</button>
+      </div>
+      <div class="btn-row">
+        <button class="actbtn accent2" id="runStreakBtn">Run 200,000 Spins &amp; Check</button>
+      </div>
+      <div id="streakResultWrap" style="display:none;">
+        <div class="bar-compare-wrap">
+          <div class="bar-compare">
+            <h5>Odds Before Any Streak (baseline)</h5>
+            <div id="baselineBars"></div>
+          </div>
+          <div class="bar-compare">
+            <h5 id="afterStreakLabel">Right After The Streak</h5>
+            <div id="afterStreakBars"></div>
+          </div>
+        </div>
+        <div class="streak-note" id="streakNote"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SECTION 4: BANKROLL & STRATEGY LAB ============ -->
+  <section class="lab-section">
+    <div class="section-head">
+      <div class="kicker">The Real Test</div>
+      <h2>Bankroll &amp; Betting Strategy Lab</h2>
+      <p class="sub">Set your bankroll and pick a system. We'll simulate hundreds of independent sessions — betting on red the whole way — so you see the full spread of outcomes, not just one hot streak.</p>
+    </div>
+    <div class="rules-card">
+      <div class="field-grid">
+        <div class="field">
+          <label for="bkStart">Starting Bankroll ($)</label>
+          <input type="number" id="bkStart" value="300" min="10" step="10">
+        </div>
+        <div class="field">
+          <label for="bkBet">Base Bet Size ($)</label>
+          <input type="number" id="bkBet" value="10" min="1" step="1">
+        </div>
+        <div class="field">
+          <label for="bkSpins">Spins Per Session</label>
+          <input type="number" id="bkSpins" value="60" min="5" step="5">
+        </div>
+        <div class="field">
+          <label for="bkSessions">Sessions To Simulate</label>
+          <input type="number" id="bkSessions" value="500" min="10" step="10">
+        </div>
+        <div class="field">
+          <label for="bkWheel">Wheel</label>
+          <select id="bkWheel">
+            <option value="double">American — 0 &amp; 00</option>
+            <option value="single">European — single 0</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="bkStrategy">Betting Strategy (on Red)</label>
+          <select id="bkStrategy">
+            <option value="flat">Flat — same bet every spin</option>
+            <option value="martingale">Martingale — double after a loss</option>
+            <option value="fibonacci">Fibonacci — step up the sequence after a loss</option>
+            <option value="dalembert">D'Alembert — add one unit after a loss, remove after a win</option>
+          </select>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="actbtn primary" id="runBankrollBtn">Run The Simulation</button>
+      </div>
+
+      <div id="bankrollResults" style="display:none;">
+        <div class="result-grid">
+          <div class="result-card"><div class="l">Avg. Ending Balance</div><div class="v" id="resAvg">—</div></div>
+          <div class="result-card"><div class="l">Sessions Ahead</div><div class="v good" id="resProfit">—</div></div>
+          <div class="result-card"><div class="l">Sessions Busted</div><div class="v danger" id="resBust">—</div></div>
+          <div class="result-card"><div class="l">Best / Worst Session</div><div class="v" id="resRange" style="font-size:14px;">—</div></div>
+        </div>
+        <div class="sim-chart-wrap">
+          <div style="text-align:center; font-size:10px; letter-spacing:1.4px; text-transform:uppercase; color:var(--text-dim); margin-bottom:6px;">Three Sample Sessions</div>
+          <svg id="simChart" viewBox="0 0 640 240" preserveAspectRatio="none"></svg>
+          <div class="sim-legend">
+            <span><i style="background:var(--gold);"></i>Session A</span>
+            <span><i style="background:var(--accent);"></i>Session B</span>
+            <span><i style="background:var(--violet);"></i>Session C</span>
+            <span><i style="background:var(--text-dim);"></i>Starting bankroll</span>
+          </div>
+        </div>
+        <p style="text-align:center; font-size:11.5px; color:var(--text-dim); margin-top:14px; max-width:60ch; margin-left:auto; margin-right:auto;" id="bankrollTakeaway"></p>
+      </div>
+
+      <div class="strategy-explain">
+        <div class="se-card"><h5>Flat</h5><p>Same bet size every spin, win or lose. Lowest drama, and the most predictable long-run loss — closest to the pure house edge.</p></div>
+        <div class="se-card"><h5>Martingale</h5><p>Double your bet after every loss so one win recovers everything plus a small profit. Wins often feel small and steady, until table limits or your own bankroll can't cover the next double — then it's a big loss all at once.</p></div>
+        <div class="se-card"><h5>Fibonacci</h5><p>Step forward through 1,1,2,3,5,8... after a loss, step back two after a win. Grows slower than Martingale, but the same trap applies: a long losing run demands ever-bigger bets.</p></div>
+        <div class="se-card"><h5>D'Alembert</h5><p>Add one unit after a loss, remove one after a win. Gentler swings than the other two, but it doesn't touch the house edge — it just spreads the same expected loss out more smoothly.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SECTION 5: THE NUMBER BOARD ============ -->
+  <section class="lab-section">
+    <div class="section-head">
+      <div class="kicker">About Those Screens</div>
+      <h2>What Casino Number Boards Are Really For</h2>
+    </div>
+    <div class="rules-card">
+      <p>Almost every roulette table — especially electronic ones — has a lit-up board showing the last 12 to 20 numbers, plus little bar-chart stats for red/black, odd/even, high/low. It looks exactly like the simulator above, and it's genuinely fun to watch. But here's what it can and can't do:</p>
+      <ul>
+        <li><b>It can't predict the next spin.</b> The wheel has no mechanism for "remembering" the numbers on that board — the board is generated from the same independent spins you'd get without it.</li>
+        <li><b>It's not there to help you win.</b> Its real job is engagement: pattern-seeking is one of the most reliable ways to keep a player watching the felt and placing another bet. A visible "streak" makes the next bet feel informed, even though it changes nothing.</li>
+        <li><b>Photographing or screenshotting it doesn't add information.</b> Whether you glance at the board or study a screenshot of it for ten minutes, you're looking at history that the next spin can't see.</li>
+        <li><b>The only genuinely useful number on that machine</b> is usually printed somewhere on the cabinet or table sign: whether it's a single-zero or double-zero wheel, and what the table minimum and maximum are.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ============ SECTION 6: BET TYPES & TRUE ODDS ============ -->
+  <section class="lab-section">
+    <div class="section-head">
+      <div class="kicker">Reference</div>
+      <h2>Bet Types, Payouts &amp; True Odds</h2>
+      <p class="sub">Every bet on the layout carries the same house edge (5.26% American / 2.70% European) — the payout odds are simply set slightly below the true odds to build that edge in. The single exception is the American five-number "top line" bet, which carries a worse edge.</p>
+    </div>
+    <div class="rules-card">
+      <table class="data-table">
+        <thead>
+          <tr><th>Bet</th><th>Numbers Covered</th><th>Payout</th><th>True Odds Against (Am. / Eur.)</th></tr>
+        </thead>
+        <tbody>
+          <tr><td data-label="Bet">Straight Up</td><td data-label="Numbers">1</td><td data-label="Payout">35 to 1</td><td data-label="True Odds">37:1 / 36:1</td></tr>
+          <tr><td data-label="Bet">Split</td><td data-label="Numbers">2</td><td data-label="Payout">17 to 1</td><td data-label="True Odds">18:1 / 17.5:1</td></tr>
+          <tr><td data-label="Bet">Street</td><td data-label="Numbers">3</td><td data-label="Payout">11 to 1</td><td data-label="True Odds">11.67:1 / 11.33:1</td></tr>
+          <tr><td data-label="Bet">Corner</td><td data-label="Numbers">4</td><td data-label="Payout">8 to 1</td><td data-label="True Odds">8.5:1 / 8.25:1</td></tr>
+          <tr><td data-label="Bet">Top Line (Am. only)</td><td data-label="Numbers">5 (0,00,1,2,3)</td><td data-label="Payout">6 to 1</td><td data-label="True Odds">6.6:1 — worst bet on the table</td></tr>
+          <tr><td data-label="Bet">Six Line</td><td data-label="Numbers">6</td><td data-label="Payout">5 to 1</td><td data-label="True Odds">5.33:1 / 5.17:1</td></tr>
+          <tr><td data-label="Bet">Column / Dozen</td><td data-label="Numbers">12</td><td data-label="Payout">2 to 1</td><td data-label="True Odds">2.17:1 / 2.08:1</td></tr>
+          <tr><td data-label="Bet">Even Money (Red/Black, Odd/Even, Hi/Lo)</td><td data-label="Numbers">18</td><td data-label="Payout">1 to 1</td><td data-label="True Odds">1.11:1 / 1.06:1</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============ SECTION 7: MONEY MANAGEMENT ============ -->
+  <section class="lab-section">
+    <div class="section-head">
+      <div class="kicker">Before You Sit Down</div>
+      <h2>Money Management That Actually Helps</h2>
+      <p class="sub">None of this changes the house edge. It just controls how the session feels and how safely it ends.</p>
+    </div>
+    <div class="tip-grid">
+      <div class="tip-card"><div class="num">1</div><h5>Set a loss limit before you play — and a stop-win too</h5><p>Decide the number you'll walk away at on the way down, and a target you'll walk away at on the way up, before a single chip touches the felt. Write it down if that helps you keep it.</p></div>
+      <div class="tip-card"><div class="num">2</div><h5>Pick the wheel and the rule set, not the "system"</h5><p>Single-zero over double-zero, and La Partage or En Prison if it's offered. That's the one choice that measurably changes your math before you place a single bet.</p></div>
+      <div class="tip-card"><div class="num">3</div><h5>Bet flat, not in a progression</h5><p>Progressions like Martingale don't reduce your average loss — they trade a lot of small, steady-feeling wins for a rare, much larger loss. Flat betting keeps that risk visible instead of hidden.</p></div>
+      <div class="tip-card"><div class="num">4</div><h5>Treat it as the cost of a night out</h5><p>Budget for it like a show ticket or a nice dinner: a fixed amount you're comfortable not seeing again, in exchange for a few hours of entertainment.</p></div>
+      <div class="tip-card"><div class="num">5</div><h5>Never chase a loss to "get back to even"</h5><p>The wheel doesn't know your balance. Chasing usually means abandoning your bet size discipline exactly when it matters most.</p></div>
+      <div class="tip-card"><div class="num">6</div><h5>A streak is not a signal</h5><p>Use the Streak Buster above whenever the urge to "bet the other color, it's due" shows up. The data holds up every time.</p></div>
+    </div>
+  </section>
+
+  <div class="coming-soon">
+    A full playable Roulette table is next on the felt — <b>this lab is the groundwork</b> so you walk up to it already knowing the math.
+  </div>
+
+  <div class="backlink"><a href="../index.html">← Back to the hub</a></div>
+
+  <footer>© <span id="copyYear"></span> AI&amp;I. All rights reserved. Games <span class="flipR">R</span> Us.<br>For entertainment and education only. Not a real-money or licensed gaming product. Not gambling advice.</footer>
+</div>
+
+<script>
+(function(){
+'use strict';
+
+// ---------------- shared wheel data ----------------
+var AMERICAN_WHEEL = [0,28,9,26,30,11,7,20,32,17,5,22,34,15,3,24,36,13,1,'00',27,10,25,29,12,8,19,31,18,6,21,33,16,4,23,35,14,2];
+var EUROPEAN_WHEEL  = [0,32,15,19,4,21,2,25,17,34,6,27,13,36,11,30,8,23,10,5,24,16,33,1,20,14,31,9,22,18,29,7,28,12,35,3,26];
+var RED_SET = {1:1,3:1,5:1,7:1,9:1,12:1,14:1,16:1,18:1,19:1,21:1,23:1,25:1,27:1,30:1,32:1,34:1,36:1};
+
+function colorOf(n){
+  if(n===0 || n==='00') return 'green';
+  return RED_SET[n] ? 'red' : 'black';
+}
+function wheelFor(type){ return type==='single' ? EUROPEAN_WHEEL : AMERICAN_WHEEL; }
+function spinWheel(type){
+  var wheel = wheelFor(type);
+  var idx = Math.floor(Math.random()*wheel.length);
+  return { number: wheel[idx], idx: idx, color: colorOf(wheel[idx]), wheelLen: wheel.length };
+}
+
+// ---------------- theme ----------------
+var LS_THEME = 'roulette_lab_theme';
+var LS_FS = 'roulette_lab_fontsize';
+var root = document.documentElement;
+var t = 'light';
+try{ t = localStorage.getItem(LS_THEME) || 'light'; }catch(e){}
+root.setAttribute('data-theme', t);
+document.getElementById('themeBtn').addEventListener('click', function(){
+  var next = root.getAttribute('data-theme')==='dark' ? 'light' : 'dark';
+  root.setAttribute('data-theme', next);
+  try{ localStorage.setItem(LS_THEME, next); }catch(e){}
+});
+document.getElementById('copyYear').textContent = new Date().getFullYear();
+
+(function(){
+  var zoomMap = { sm:0.9, md:1, lg:1.15 };
+  function apply(size){
+    document.body.style.zoom = zoomMap[size] || 1;
+    document.querySelectorAll('.fontctl button').forEach(function(b){
+      b.classList.toggle('active', b.getAttribute('data-fs')===size);
+    });
+  }
+  var saved = 'md';
+  try{ saved = localStorage.getItem(LS_FS) || 'md'; }catch(e){}
+  apply(saved);
+  document.querySelectorAll('.fontctl button').forEach(function(b){
+    b.addEventListener('click', function(){
+      var size = b.getAttribute('data-fs');
+      apply(size);
+      try{ localStorage.setItem(LS_FS, size); }catch(e){}
+    });
+  });
+})();
+
+// ---------------- about drop ----------------
+var aboutToggle = document.getElementById('aboutToggle');
+var aboutPanel = document.getElementById('aboutPanel');
+aboutToggle.addEventListener('click', function(){
+  var open = aboutPanel.classList.toggle('open');
+  aboutToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+});
+
+// ---------------- wheel SVG build ----------------
+function polarTop(cx,cy,r,angleDeg){
+  // angleDeg measured clockwise from the top (12 o'clock)
+  var a = (angleDeg) * Math.PI/180;
+  return { x: cx + r*Math.sin(a), y: cy - r*Math.cos(a) };
+}
+function wedgePath(cx,cy,r,startDeg,endDeg){
+  var p1 = polarTop(cx,cy,r,startDeg);
+  var p2 = polarTop(cx,cy,r,endDeg);
+  var large = (endDeg-startDeg) > 180 ? 1 : 0;
+  return 'M '+cx+','+cy+' L '+p1.x.toFixed(2)+','+p1.y.toFixed(2)+' A '+r+','+r+' 0 '+large+' 1 '+p2.x.toFixed(2)+','+p2.y.toFixed(2)+' Z';
+}
+var wheelGroup = document.getElementById('wheelGroup');
+var currentWheelType = 'double';
+var currentRotation = 0;
+
+function buildWheel(type){
+  var wheel = wheelFor(type);
+  var seg = 360/wheel.length;
+  var cx=150, cy=150, r=140;
+  var html = '<circle cx="150" cy="150" r="146" fill="none" stroke="#2a1f10" stroke-width="6"></circle>';
+  for(var i=0;i<wheel.length;i++){
+    var col = colorOf(wheel[i]);
+    var fill = col==='red' ? '#c94a3f' : (col==='black' ? '#26262c' : '#2f8f57');
+    html += '<path d="'+wedgePath(cx,cy,r,i*seg,(i+1)*seg)+'" fill="'+fill+'" stroke="#0c0a16" stroke-width="1"></path>';
+  }
+  html += '<circle cx="150" cy="150" r="34" fill="#151129" stroke="'+ 'rgba(240,195,77,0.6)' +'" stroke-width="3"></circle>';
+  wheelGroup.innerHTML = html;
+}
+buildWheel(currentWheelType);
+
+function setResultBadge(res){
+  var el = document.getElementById('wheelResult');
+  el.textContent = res.number;
+  el.className = 'wheel-result '+res.color;
+}
+
+function normalize(a){ return ((a%360)+360)%360; }
+
+function animateSpin(type, cb){
+  var wheel = wheelFor(type);
+  var seg = 360/wheel.length;
+  var res = spinWheel(type);
+  var targetCenter = res.idx*seg + seg/2;
+  var need = normalize(-targetCenter - currentRotation) ;
+  var delta = need + 360*6;
+  currentRotation += delta;
+  wheelGroup.style.transform = 'rotate('+currentRotation+'deg)';
+  setTimeout(function(){ setResultBadge(res); cb && cb(res); }, 3450);
+}
+
+// ---------------- Spin Simulator widget ----------------
+var spinHistory = []; // {number,color}
+var spinCounts = { red:0, black:0, green:0 };
+var spinBusy = false;
+
+document.getElementById('wheelTypeSelect').addEventListener('click', function(e){
+  var btn = e.target.closest('button'); if(!btn) return;
+  document.querySelectorAll('#wheelTypeSelect button').forEach(function(b){ b.classList.remove('active'); });
+  btn.classList.add('active');
+  currentWheelType = btn.getAttribute('data-wheel');
+  buildWheel(currentWheelType);
+  currentRotation = normalize(currentRotation);
+  wheelGroup.style.transition = 'none';
+  wheelGroup.style.transform = 'rotate('+currentRotation+'deg)';
+  void wheelGroup.offsetWidth;
+  wheelGroup.style.transition = '';
+  resetSpinHistory();
+});
+
+function renderHistory(){
+  var strip = document.getElementById('historyStrip');
+  var recent = spinHistory.slice(-16);
+  var placeholders = 16 - recent.length;
+  var html = '';
+  for(var i=0;i<placeholders;i++){ html += '<div class="num-chip ghost">·</div>'; }
+  recent.forEach(function(r){
+    html += '<div class="num-chip '+r.color+'">'+r.number+'</div>';
+  });
+  strip.innerHTML = html;
+}
+function currentStreak(){
+  if(spinHistory.length===0) return '—';
+  var last = spinHistory[spinHistory.length-1];
+  var count = 0;
+  for(var i=spinHistory.length-1;i>=0;i--){
+    if(spinHistory[i].color===last.color) count++; else break;
+  }
+  return count+' '+last.color;
+}
+function renderStats(){
+  var total = spinHistory.length;
+  document.getElementById('statSpins').textContent = total;
+  document.getElementById('statRed').textContent = total ? Math.round(spinCounts.red/total*100)+'%' : '0%';
+  document.getElementById('statBlack').textContent = total ? Math.round(spinCounts.black/total*100)+'%' : '0%';
+  document.getElementById('statStreak').textContent = currentStreak();
+}
+function resetSpinHistory(){
+  spinHistory = []; spinCounts = { red:0, black:0, green:0 };
+  renderHistory(); renderStats();
+  setResultBadge({number:'—', color:''});
+  document.getElementById('wheelResult').textContent = '—';
+  document.getElementById('wheelResult').className = 'wheel-result';
+}
+renderHistory(); renderStats();
+
+document.getElementById('spinBtn').addEventListener('click', function(){
+  if(spinBusy) return;
+  spinBusy = true;
+  document.getElementById('spinBtn').disabled = true;
+  animateSpin(currentWheelType, function(res){
+    spinHistory.push(res);
+    spinCounts[res.color]++;
+    renderHistory(); renderStats();
+    spinBusy = false;
+    document.getElementById('spinBtn').disabled = false;
+  });
+});
+document.getElementById('resetSpinBtn').addEventListener('click', resetSpinHistory);
+
+// ---------------- Streak Fallacy widget ----------------
+var streakLen = 4, streakColor = 'red';
+document.getElementById('streakLenSelect').addEventListener('click', function(e){
+  var btn = e.target.closest('button'); if(!btn) return;
+  document.querySelectorAll('#streakLenSelect button').forEach(function(b){ b.classList.remove('active'); });
+  btn.classList.add('active');
+  streakLen = parseInt(btn.getAttribute('data-len'),10);
+});
+document.getElementById('streakColorSelect').addEventListener('click', function(e){
+  var btn = e.target.closest('button'); if(!btn) return;
+  document.querySelectorAll('#streakColorSelect button').forEach(function(b){ b.classList.remove('active'); });
+  btn.classList.add('active');
+  streakColor = btn.getAttribute('data-color');
+});
+
+function buildBars(container, counts, total){
+  var order = ['red','black','green'];
+  var labels = {red:'Red', black:'Black', green:'Green (0/00)'};
+  var html = '';
+  order.forEach(function(c){
+    var pct = total ? (counts[c]/total*100) : 0;
+    html += '<div class="bar-row"><div class="lbl">'+labels[c].split(' ')[0]+'</div><div class="track"><div class="fill '+c+'" style="width:'+pct.toFixed(1)+'%;"></div></div><div class="pct">'+pct.toFixed(1)+'%</div></div>';
+  });
+  container.innerHTML = html;
+}
+
+document.getElementById('runStreakBtn').addEventListener('click', function(){
+  var btn = this;
+  btn.disabled = true;
+  btn.textContent = 'Running…';
+  setTimeout(function(){
+    var trials = 200000;
+    var wheel = wheelFor('double');
+    var seq = new Array(trials);
+    var baseline = { red:0, black:0, green:0 };
+    for(var i=0;i<trials;i++){
+      var idx = Math.floor(Math.random()*wheel.length);
+      var c = colorOf(wheel[idx]);
+      seq[i] = c;
+      baseline[c]++;
+    }
+    var after = { red:0, black:0, green:0 };
+    var matches = 0;
+    for(var i=0;i+streakLen<seq.length;i++){
+      var isStreak = true;
+      for(var j=0;j<streakLen;j++){ if(seq[i+j]!==streakColor){ isStreak=false; break; } }
+      if(isStreak){ after[seq[i+streakLen]]++; matches++; }
+    }
+    buildBars(document.getElementById('baselineBars'), baseline, trials);
+    buildBars(document.getElementById('afterStreakBars'), after, matches);
+    document.getElementById('afterStreakLabel').textContent = 'Right After '+streakLen+' '+streakColor.charAt(0).toUpperCase()+streakColor.slice(1)+'s In a Row (found '+matches.toLocaleString()+'x)';
+    var otherColor = streakColor==='red' ? 'black' : 'red';
+    var afterSamePct = matches ? (after[streakColor]/matches*100) : 0;
+    var afterOtherPct = matches ? (after[otherColor]/matches*100) : 0;
+    document.getElementById('streakNote').innerHTML = 'Across '+trials.toLocaleString()+' simulated spins, '+streakColor+' came up again right after the streak about <b>'+afterSamePct.toFixed(1)+'%</b> of the time, and '+otherColor+' about <b>'+afterOtherPct.toFixed(1)+'%</b> of the time — almost identical to the baseline on the left. The streak changed nothing.';
+    document.getElementById('streakResultWrap').style.display = 'block';
+    btn.disabled = false;
+    btn.textContent = 'Run 200,000 Spins & Check Again';
+  }, 30);
+});
+
+// ---------------- Bankroll & Strategy Lab ----------------
+function simulateSession(type, strategy, bankroll, baseBet, maxSpins){
+  var bal = bankroll;
+  var bet = baseBet;
+  var fib = [baseBet, baseBet];
+  var fibIdx = 0;
+  var history = [bal];
+  for(var s=0; s<maxSpins; s++){
+    if(bal <= 0){ break; }
+    var thisBet = Math.min(bet, bal);
+    if(thisBet <= 0) break;
+    var res = spinWheel(type);
+    var win = res.color === 'red';
+    bal = win ? bal + thisBet : bal - thisBet;
+    history.push(bal);
+    if(bal <= 0){ break; }
+    if(strategy==='flat'){
+      bet = baseBet;
+    } else if(strategy==='martingale'){
+      bet = win ? baseBet : bet*2;
+    } else if(strategy==='dalembert'){
+      bet = win ? Math.max(baseBet, bet-baseBet) : bet+baseBet;
+    } else if(strategy==='fibonacci'){
+      if(win){ fibIdx = Math.max(0, fibIdx-2); }
+      else { fibIdx++; }
+      while(fib.length <= fibIdx+1){ fib.push(fib[fib.length-1]+fib[fib.length-2]); }
+      bet = fib[fibIdx];
+    }
+  }
+  return { finalBal: bal, history: history };
+}
+
+function drawChart(paths, startBankroll, maxSpins){
+  var svg = document.getElementById('simChart');
+  var W=640,H=240, padL=40, padR=10, padT=14, padB=24;
+  var maxVal = startBankroll, minVal = 0;
+  paths.forEach(function(p){ p.history.forEach(function(v){ if(v>maxVal) maxVal=v; if(v<minVal) minVal=v; }); });
+  maxVal = maxVal*1.08;
+  function X(i){ return padL + (W-padL-padR) * (i/maxSpins); }
+  function Y(v){ return H-padB - (H-padT-padB) * ((v-minVal)/(maxVal-minVal || 1)); }
+  var html = '';
+  html += '<line x1="'+padL+'" y1="'+Y(startBankroll).toFixed(1)+'" x2="'+(W-padR)+'" y2="'+Y(startBankroll).toFixed(1)+'" stroke="var(--text-dim)" stroke-dasharray="4 4" stroke-width="1"></line>';
+  html += '<line x1="'+padL+'" y1="'+padT+'" x2="'+padL+'" y2="'+(H-padB)+'" stroke="var(--line)" stroke-width="1"></line>';
+  html += '<line x1="'+padL+'" y1="'+(H-padB)+'" x2="'+(W-padR)+'" y2="'+(H-padB)+'" stroke="var(--line)" stroke-width="1"></line>';
+  var colors = ['var(--gold)','var(--accent)','var(--violet)'];
+  paths.forEach(function(p,pi){
+    var d = '';
+    p.history.forEach(function(v,i){ d += (i===0?'M':'L')+X(i).toFixed(1)+','+Y(v).toFixed(1)+' '; });
+    html += '<path d="'+d+'" fill="none" stroke="'+colors[pi]+'" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"></path>';
+  });
+  svg.innerHTML = html;
+}
+
+document.getElementById('runBankrollBtn').addEventListener('click', function(){
+  var btn = this;
+  var bankroll = Math.max(10, parseFloat(document.getElementById('bkStart').value)||300);
+  var bet = Math.max(1, parseFloat(document.getElementById('bkBet').value)||10);
+  var maxSpins = Math.max(5, parseInt(document.getElementById('bkSpins').value,10)||60);
+  var sessions = Math.min(5000, Math.max(10, parseInt(document.getElementById('bkSessions').value,10)||500));
+  var wheelType = document.getElementById('bkWheel').value;
+  var strategy = document.getElementById('bkStrategy').value;
+
+  btn.disabled = true;
+  btn.textContent = 'Simulating…';
+  setTimeout(function(){
+    var total=0, busts=0, profits=0, best=-Infinity, worst=Infinity;
+    var samplePaths = [];
+    for(var i=0;i<sessions;i++){
+      var r = simulateSession(wheelType, strategy, bankroll, bet, maxSpins);
+      total += r.finalBal;
+      if(r.finalBal<=0) busts++;
+      if(r.finalBal>bankroll) profits++;
+      if(r.finalBal>best) best=r.finalBal;
+      if(r.finalBal<worst) worst=r.finalBal;
+      if(i<3) samplePaths.push(r);
+    }
+    var avg = total/sessions;
+    document.getElementById('resAvg').textContent = '$'+avg.toFixed(2);
+    document.getElementById('resProfit').textContent = (profits/sessions*100).toFixed(1)+'%';
+    document.getElementById('resBust').textContent = (busts/sessions*100).toFixed(1)+'%';
+    document.getElementById('resRange').textContent = '$'+best.toFixed(0)+' / $'+worst.toFixed(0);
+    drawChart(samplePaths, bankroll, maxSpins);
+    var lossPct = ((bankroll-avg)/bankroll*100);
+    var takeaway = lossPct >= 0
+      ? 'Across '+sessions.toLocaleString()+' simulated sessions, the average ending balance was about '+(lossPct).toFixed(1)+'% below the starting bankroll — close to what the house edge predicts on its own. The betting system changed how the outcomes felt session to session, not the average result.'
+      : 'Across '+sessions.toLocaleString()+' simulated sessions the average landed slightly above the starting bankroll this run — that can happen over a limited number of sessions, but it will not hold up as the number of sessions grows, since the underlying edge is still working against every bet.';
+    document.getElementById('bankrollTakeaway').textContent = takeaway;
+    document.getElementById('bankrollResults').style.display = 'block';
+    btn.disabled = false;
+    btn.textContent = 'Run The Simulation';
+  }, 30);
+});
+
+})();
+</script>
+</body>
+</html>
