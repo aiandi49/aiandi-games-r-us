@@ -1220,6 +1220,7 @@ footer .flipR{ display:inline-block; transform:scaleX(-1); }
     if(!confirm('End this poker night and reset everything?')) return;
     clearInterval(timerHandle); timerHandle = null;
     clearActionTimer();
+    uiLocked = false;
     state = {
       started:false, finished:false,
       buyin:state.buyin, startStack:state.startStack, sb:state.sb, bb:state.bb,
