@@ -75,7 +75,7 @@ body{
 .timer-controls button{ background:none; border:1px solid var(--line); color:var(--text-dim); border-radius:6px; padding:2px 6px; font-size:9px; cursor:pointer; }
 .timer-controls button:hover{ color:var(--gold); border-color:var(--gold); }
 
-.table-oval-wrap{ margin-bottom:14px; }
+.table-oval-wrap{ margin-bottom:34px; }
 .table-rail{
   position:relative; padding:16px; border-radius:999px;
   background:linear-gradient(180deg, #2a1a42 0%, #180d28 55%, #0a0514 100%);
@@ -113,7 +113,7 @@ body{
 .oval-seat{ position:absolute; width:132px; margin-left:-66px; margin-top:-50px; transform:none; }
 .oval-seat.hero{ width:150px; margin-left:0; transform:translateX(-50%); }
 .oval-seat.hero.split{ width:auto; max-width:min(430px,92vw); min-width:150px; }
-.pos-you{ top:84%; left:50%; }
+.pos-you{ top:80%; left:50%; }
 .pos-1{ top:82%; left:15%; }
 .pos-2{ top:46%; left:6%; }
 .pos-3{ top:12%; left:23%; }
@@ -481,8 +481,8 @@ footer .flipR{ display:inline-block; transform:scaleX(-1); }
       <select id="deckInput">
         <option value="1">1 deck — easy to count, house discretion</option>
         <option value="4">4 decks</option>
-        <option value="6" selected>6 decks — standard</option>
-        <option value="8">8 decks — hardest to count</option>
+        <option value="6">6 decks</option>
+        <option value="8" selected>8 decks — standard, hardest to count</option>
       </select>
     </div>
     <div class="field row">
@@ -583,7 +583,7 @@ const RANKS = ['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
 const NAMES = ['You','Riley','Morgan','Taylor','Casey','Jordan','Sam'];
 
 let state = {
-  startBank:305, places:3, decks:6, chipReqMax:2, shoeReqMax:2,
+  startBank:305, places:3, decks:8, chipReqMax:5, shoeReqMax:5,
   players:[], buttonIndex:0, level:1, levelSeconds:300, remaining:300, paused:false, started:false,
   dealerEarnings:0, timerHandle:null, roundsPlayed:0,
   deck:[], dealerHand:[], dealerReveal:'none',
@@ -653,7 +653,7 @@ function newTournament(){
   state.startBank = updateStartBankPreview();
   state.places = parseInt(document.getElementById('placesInput').value);
   state.decks = parseInt(document.getElementById('deckInput').value);
-  state.chipReqMax = 2; state.shoeReqMax = 2;
+  state.chipReqMax = 5; state.shoeReqMax = 5;
 
   state.players = NAMES.map((n,i)=>({
     id:i, name:n, isYou:i===0, bank:state.startBank, photo:null,
