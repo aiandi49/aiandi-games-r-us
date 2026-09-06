@@ -663,7 +663,7 @@ function newTournament(){
   state.paused = false; state.started = false; state.dealerEarnings = 0; state.roundsPlayed = 0;
   state.deck = buildShoe(state.decks);
   var fullShoeSize = state.decks*52;
-  state.cutIndex = Math.floor(fullShoeSize * (0.75 + Math.random()*0.10));
+  state.cutIndex = Math.floor(fullShoeSize * (0.92 + Math.random()*0.035));
   state.tournamentOver = false;
   state.dealerHand = []; state.dealerReveal = 'none';
   state.phase = 'pregame'; state.turnSeat = -1; state.turnHand = 0;
