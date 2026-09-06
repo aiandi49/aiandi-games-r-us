@@ -95,6 +95,13 @@ body{
   box-shadow:0 16px 40px rgba(0,0,0,0.45), inset 0 0 60px rgba(0,0,0,0.35);
   transition:transform .18s ease, box-shadow .18s ease;
 }
+.dev-badge{
+  position:absolute; top:18px; right:18px; text-align:center;
+  background:linear-gradient(180deg,#ffe08a,var(--gold));
+  color:#3a2405; font-weight:800; font-size:10.5px; letter-spacing:1.2px; text-transform:uppercase;
+  padding:6px 12px; border-radius:20px; box-shadow:0 4px 12px rgba(0,0,0,0.4); z-index:2;
+}
+@media (max-width:640px){ .dev-badge{ font-size:9px; padding:5px 10px; top:14px; right:14px; } }
 @media (max-width:640px){ .game-card{ height:auto; padding:22px 20px 20px; } }
 .game-card:hover{ transform:translateY(-3px); box-shadow:0 22px 50px rgba(0,0,0,0.55), inset 0 0 60px rgba(0,0,0,0.35); }
 .game-card .kicker{ font-size:11px; letter-spacing:2.5px; text-transform:uppercase; color:var(--dark-text-dim); }
@@ -142,6 +149,7 @@ footer .flipR{ display:inline-block; transform:scaleX(-1); }
       <span class="tagline">Table VII &amp; the Reversal Family</span>
     </div>
     <button class="iconbtn" id="themeBtn">🌙 Theme</button>
+      <a class="iconbtn" href="./feedback.html" style="text-decoration:none; display:inline-flex; align-items:center;">💬 Beta Feedback</a>
       <div class="fontctl" role="group" aria-label="Text size">
         <button type="button" data-fs="sm" aria-label="Small text">A-</button>
         <button type="button" data-fs="md" class="active" aria-label="Default text">A</button>
@@ -235,6 +243,7 @@ footer .flipR{ display:inline-block; transform:scaleX(-1); }
     </a>
 
     <a class="game-card roulette" href="./roulette/index.html">
+      <div class="dev-badge">In Development</div>
       <div class="kicker">Roulette — Strategy Lab</div>
       <h2 class="good">Roulette Strategy Lab</h2>
       <div class="badge-row">
@@ -242,7 +251,7 @@ footer .flipR{ display:inline-block; transform:scaleX(-1); }
         <span class="tag">Streak buster</span>
         <span class="tag">Bankroll simulator</span>
       </div>
-      <p>Not a playable table yet — a real spin simulator, a streak-buster, and a bankroll simulator that puts Martingale, Fibonacci, and flat betting through hundreds of sessions before you take the math anywhere near real money.</p>
+      <p>The strategy lab below is finished and fully playable. The real Roulette table it's training you for isn't built yet — that's next. Spin the wheel, run the simulations, see the math for yourself.</p>
       <span class="cta">Open the Strategy Lab →</span>
     </a>
   </div>
