@@ -44,6 +44,7 @@ body{
 
 .wrap{ position:relative; z-index:1; max-width:1600px; margin:0 auto; padding:16px 14px 70px; }
 
+.dev-banner{ text-align:center; font-size:12.5px; font-weight:700; color:#3a2405; background:linear-gradient(180deg,#ffe08a,var(--gold)); border-radius:12px; padding:10px 16px; margin-bottom:14px; box-shadow:0 6px 16px rgba(0,0,0,0.3); }
 .topbar{ display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; margin-bottom:10px; }
 .brand{ display:flex; flex-direction:column; line-height:1.05; }
 .brand .ai{ font-family:Georgia,serif; font-style:italic; font-weight:700; font-size:22px; color:var(--gold); letter-spacing:0.5px; }
@@ -225,6 +226,8 @@ footer .flipR{ display:inline-block; transform:scaleX(-1); }
 
 <div class="wrap">
 
+  <div class="dev-banner">🚧 The Strategy Lab below is finished and fully working. A real playable Roulette table isn't built yet — that's the next thing on the list.</div>
+
   <div class="topbar">
     <div class="brand">
       <span class="ai">AI &amp; I</span>
@@ -233,6 +236,7 @@ footer .flipR{ display:inline-block; transform:scaleX(-1); }
     </div>
     <div class="topbtns">
       <button class="iconbtn" id="themeBtn">🌙 Theme</button>
+      <a class="iconbtn" href="../feedback.html" style="text-decoration:none; display:inline-flex; align-items:center;">💬 Feedback</a>
       <div class="fontctl" role="group" aria-label="Text size">
         <button type="button" data-fs="sm" aria-label="Small text">A-</button>
         <button type="button" data-fs="md" class="active" aria-label="Default text">A</button>
