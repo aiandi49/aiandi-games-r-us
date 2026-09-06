@@ -79,10 +79,12 @@ body{
   background:linear-gradient(95deg,var(--gold),var(--accent) 55%,var(--violet)); -webkit-background-clip:text; background-clip:text; color:transparent; }
 .title-hero p{ margin:6px 0 0; font-size:12px; letter-spacing:2px; text-transform:uppercase; color:var(--text-dim); }
 
-.game-grid{ display:grid; grid-template-columns:1fr 1fr; grid-template-rows:repeat(2, minmax(360px,1fr)); gap:22px; margin-bottom:22px; }
-@media (max-width:640px){ .game-grid{ grid-template-columns:1fr; grid-template-rows:none; gap:16px; } }
+.game-grid{ display:grid; grid-template-columns:1fr 1fr; grid-auto-rows:minmax(360px,1fr); gap:22px; margin-bottom:22px; }
+@media (max-width:640px){ .game-grid{ grid-template-columns:1fr; grid-auto-rows:none; gap:16px; } }
 .game-card h2.accent{ color:var(--accent); }
 .game-card.poker .cta{ color:var(--accent); }
+.game-card.roulette .cta{ color:var(--good); }
+.game-card h2.good{ color:var(--good); }
 
 .game-card{
   position:relative; display:flex; flex-direction:column; justify-content:space-between;
@@ -175,6 +177,10 @@ footer .flipR{ display:inline-block; transform:scaleX(-1); }
           <h4 class="accent">Table VII Poker</h4>
           <p>The companion for a live poker night. Real cards get dealt at the real table — this just keeps everything else honest: a blind clock that steps up on schedule, a chip tracker for every player's stack, quick eliminations when someone's felted, and a payout calculator that splits the pool the moment the last hand's done.</p>
         </div>
+        <div class="about-item">
+          <h4 style="color:var(--good);">Roulette Strategy Lab</h4>
+          <p>Not a playable table yet — a real spin simulator, a "streak buster" that shows what actually follows a run of reds or blacks, and a bankroll simulator that runs hundreds of sessions against Martingale, Fibonacci, and other systems, so you can see the honest math before you ever sit down at a wheel.</p>
+        </div>
       </div>
     </div>
   </div>
@@ -226,6 +232,18 @@ footer .flipR{ display:inline-block; transform:scaleX(-1); }
       </div>
       <p>Cards are dealt live at the table — this just runs the clock, tracks every stack, and works out the payout split when the last hand's done.</p>
       <span class="cta">Run Poker Night →</span>
+    </a>
+
+    <a class="game-card roulette" href="./roulette/index.html">
+      <div class="kicker">Roulette — Strategy Lab</div>
+      <h2 class="good">Roulette Strategy Lab</h2>
+      <div class="badge-row">
+        <span class="tag">Live spin simulator</span>
+        <span class="tag">Streak buster</span>
+        <span class="tag">Bankroll simulator</span>
+      </div>
+      <p>Not a playable table yet — a real spin simulator, a streak-buster, and a bankroll simulator that puts Martingale, Fibonacci, and flat betting through hundreds of sessions before you take the math anywhere near real money.</p>
+      <span class="cta">Open the Strategy Lab →</span>
     </a>
   </div>
 
