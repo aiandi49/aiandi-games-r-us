@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Beta Feedback — AI &amp; I's Games R Us</title>
+<style>
+:root{
+  --gold:#f0c34d; --gold-soft:#c9a24b;
+  --accent:#3ec6e0; --accent-glow:rgba(62,198,224,0.55);
+  --violet:#a473ff; --violet-glow:rgba(164,115,255,0.5);
+  --danger:#e0645a; --good:#4fbf6b;
+  --dark-text:#f1eef8; --dark-text-dim:rgba(241,238,248,0.62);
+}
+html[data-theme="dark"]{
+  --bg-0:#07050f; --bg-1:#0e0a1e; --panel:#151129; --panel-2:#100c20;
+  --felt-1:#123a52; --felt-2:#1c0f3a; --felt-3:#3a1a52;
+  --line:rgba(240,195,77,0.28); --text:#f1eef8; --text-dim:rgba(241,238,248,0.58);
+}
+html[data-theme="light"]{
+  --bg-0:#f3eefb; --bg-1:#e9e0fa; --panel:#ffffff; --panel-2:#f6f2fc;
+  --felt-1:#1c5f82; --felt-2:#3a2064; --felt-3:#5a2a78;
+  --line:rgba(140,90,190,0.35); --text:#160f28; --text-dim:rgba(22,15,40,0.62);
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  min-height:100vh; color:var(--text); font-family:'Segoe UI',Arial,sans-serif;
+  background:
+    radial-gradient(ellipse 900px 600px at 15% -10%, rgba(164,115,255,0.28), transparent 60%),
+    radial-gradient(ellipse 900px 700px at 90% 10%, rgba(62,198,224,0.22), transparent 55%),
+    radial-gradient(ellipse 1200px 900px at 50% 110%, rgba(90,30,120,0.35), transparent 60%),
+    linear-gradient(180deg, var(--bg-1), var(--bg-0) 55%);
+  background-attachment:fixed;
+  overflow-x:hidden;
+}
+.wrap{ position:relative; z-index:1; max-width:680px; margin:0 auto; padding:16px 14px 70px; }
+.topbar{ display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; margin-bottom:20px; }
+.brand{ display:flex; flex-direction:column; line-height:1.05; }
+.brand .ai{ font-family:Georgia,serif; font-style:italic; font-weight:700; font-size:22px; color:var(--gold); letter-spacing:0.5px; }
+.brand .gru{ font-size:11px; font-weight:800; letter-spacing:3px; color:var(--accent); text-transform:uppercase; }
+.brand .flipR{ display:inline-block; transform:scaleX(-1); }
+.iconbtn{ background:var(--panel); border:1px solid var(--line); color:var(--text); border-radius:9px; padding:8px 12px; font-size:11px; letter-spacing:0.5px; cursor:pointer; transition:all .15s ease; }
+.iconbtn:hover{ border-color:var(--gold); color:var(--gold); }
+
+.title-hero{ text-align:center; margin:10px 0 24px; }
+.title-hero h1{ font-family:Georgia,serif; font-style:italic; font-size:clamp(26px,7vw,38px); margin:0; letter-spacing:0.5px;
+  background:linear-gradient(95deg,var(--gold),var(--accent) 55%,var(--violet)); -webkit-background-clip:text; background-clip:text; color:transparent; }
+.title-hero p{ margin:8px auto 0; font-size:13px; color:var(--text-dim); max-width:480px; line-height:1.6; }
+
+.card{ background:var(--panel); border:1px solid var(--line); border-radius:20px; padding:26px 24px; box-shadow:0 16px 40px rgba(0,0,0,0.35); }
+.field{ margin-bottom:18px; }
+.field label{ display:block; font-size:12px; font-weight:700; letter-spacing:0.5px; color:var(--text); margin-bottom:7px; }
+.field .hint{ font-size:11px; color:var(--text-dim); font-weight:400; margin-left:6px; }
+.field select, .field input[type="text"], .field textarea{
+  width:100%; background:var(--panel-2); border:1px solid var(--line); border-radius:10px;
+  color:var(--text); font-family:inherit; font-size:14px; padding:11px 13px; outline:none; transition:border-color .15s ease;
+}
+.field select:focus, .field input:focus, .field textarea:focus{ border-color:var(--accent); }
+.field textarea{ resize:vertical; min-height:110px; line-height:1.5; }
+
+.stars{ display:flex; gap:6px; }
+.stars button{ background:none; border:none; font-size:28px; cursor:pointer; color:var(--text-dim); opacity:0.4; transition:all .12s ease; padding:0; line-height:1; }
+.stars button.active, .stars button:hover{ opacity:1; color:var(--gold); transform:scale(1.08); }
+
+.submit-row{ display:flex; align-items:center; gap:14px; margin-top:6px; }
+.submit-btn{ background:linear-gradient(180deg,#ffe08a,var(--gold)); color:#3a2405; border:none; border-radius:12px;
+  padding:13px 26px; font-weight:800; font-size:14px; letter-spacing:0.5px; cursor:pointer; box-shadow:0 6px 16px rgba(0,0,0,0.3); }
+.submit-btn:hover{ filter:brightness(1.05); }
+.submit-btn:disabled{ opacity:0.6; cursor:default; }
+.status-msg{ font-size:13px; font-weight:600; }
+.status-msg.ok{ color:var(--good); }
+.status-msg.err{ color:var(--danger); }
+
+.success-panel{ text-align:center; padding:40px 20px; }
+.success-panel .checkmark{ font-size:48px; margin-bottom:14px; }
+.success-panel h2{ font-family:Georgia,serif; font-style:italic; color:var(--good); margin:0 0 10px; }
+.success-panel p{ color:var(--text-dim); font-size:13.5px; line-height:1.6; max-width:420px; margin:0 auto 20px; }
+
+.back-link{ text-align:center; margin-top:22px; }
+.back-link a{ color:var(--text-dim); text-decoration:none; font-size:12.5px; }
+.back-link a:hover{ color:var(--gold); }
+footer{ text-align:center; margin-top:34px; font-size:10.5px; color:var(--text-dim); line-height:1.8; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="topbar">
+    <div class="brand">
+      <span class="ai">AI &amp; I</span>
+      <span class="gru">GAMES <span class="flipR">R</span> US</span>
+    </div>
+    <button class="iconbtn" id="themeBtn">🌙 Theme</button>
+  </div>
+
+  <div class="title-hero">
+    <h1>Beta Feedback</h1>
+    <p>We're in early beta — bugs, confusing moments, and "I wish it did X" are exactly what we're looking for. Takes under a minute, and it goes straight to us.</p>
+  </div>
+
+  <div class="card" id="formCard">
+    <form id="feedbackForm">
+      <div class="field">
+        <label for="gameSelect">Which table is this about? <span class="hint">optional</span></label>
+        <select id="gameSelect">
+          <option value="">General / the hub itself</option>
+          <option value="Blackjack Reversal">Blackjack Reversal</option>
+          <option value="Half-Bank Mode">Half-Bank Mode</option>
+          <option value="Table VII Tournament">Table VII Tournament</option>
+          <option value="Table VII Poker">Table VII Poker</option>
+          <option value="Roulette Strategy Lab">Roulette Strategy Lab</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>How's it feeling so far? <span class="hint">optional</span></label>
+        <div class="stars" id="starRow">
+          <button type="button" data-v="1">★</button>
+          <button type="button" data-v="2">★</button>
+          <button type="button" data-v="3">★</button>
+          <button type="button" data-v="4">★</button>
+          <button type="button" data-v="5">★</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="msgBox">What's on your mind?</label>
+        <textarea id="msgBox" placeholder="A bug you hit, something confusing, an idea, or just how it felt to play..." required></textarea>
+      </div>
+
+      <div class="field">
+        <label for="nameBox">Name <span class="hint">optional</span></label>
+        <input type="text" id="nameBox" placeholder="So we know who to thank">
+      </div>
+
+      <div class="field">
+        <label for="contactBox">Email or way to reach you <span class="hint">optional, only if you want a reply</span></label>
+        <input type="text" id="contactBox" placeholder="you@example.com">
+      </div>
+
+      <div class="submit-row">
+        <button type="submit" class="submit-btn" id="submitBtn">Send Feedback</button>
+        <span class="status-msg" id="statusMsg"></span>
+      </div>
+    </form>
+  </div>
+
+  <div class="card success-panel" id="successCard" style="display:none;">
+    <div class="checkmark">🎉</div>
+    <h2>Got it — thank you!</h2>
+    <p>This helps more than you know. If you left contact info and it needs a reply, we'll reach out.</p>
+    <button class="iconbtn" id="sendAnotherBtn">Send Another</button>
+  </div>
+
+  <div class="back-link"><a href="./index.html">← Back to the hub</a></div>
+
+  <footer>© <span id="copyYear"></span> AI&amp;I. Games <span class="flipR" style="display:inline-block;">R</span> Us.<br>Feedback is stored privately and never shown publicly.</footer>
+</div>
+
+<script>
+(function(){
+  'use strict';
+  var LS_THEME = 'grufb_theme';
+  var root = document.documentElement;
+  var t = localStorage.getItem(LS_THEME) || 'dark';
+  root.setAttribute('data-theme', t);
+  document.getElementById('themeBtn').addEventListener('click', function(){
+    var cur = root.getAttribute('data-theme');
+    var next = cur === 'dark' ? 'light' : 'dark';
+    root.setAttribute('data-theme', next);
+    try{ localStorage.setItem(LS_THEME, next); }catch(e){}
+  });
+  document.getElementById('copyYear').textContent = new Date().getFullYear();
+
+  var SUPABASE_URL = 'https://msuqflssqixsplcearxr.supabase.co';
+  var SUPABASE_KEY = 'sb_publishable_l7dzYPQ40yvcYDC5Ow6jHw_VKPp6kg5';
+
+  var rating = 0;
+  var starBtns = document.querySelectorAll('#starRow button');
+  starBtns.forEach(function(btn){
+    btn.addEventListener('click', function(){
+      rating = parseInt(btn.getAttribute('data-v'), 10);
+      starBtns.forEach(function(b){
+        b.classList.toggle('active', parseInt(b.getAttribute('data-v'),10) <= rating);
+      });
+    });
+  });
+
+  var form = document.getElementById('feedbackForm');
+  var submitBtn = document.getElementById('submitBtn');
+  var statusMsg = document.getElementById('statusMsg');
+
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    var message = document.getElementById('msgBox').value.trim();
+    if(!message){ return; }
+
+    submitBtn.disabled = true;
+    statusMsg.textContent = 'Sending...';
+    statusMsg.className = 'status-msg';
+
+    var payload = {
+      game: document.getElementById('gameSelect').value || null,
+      rating: rating || null,
+      message: message,
+      name: document.getElementById('nameBox').value.trim() || null,
+      contact: document.getElementById('contactBox').value.trim() || null,
+      page_url: document.referrer || null,
+      user_agent: navigator.userAgent
+    };
+
+    fetch(SUPABASE_URL + '/rest/v1/games_r_us_feedback', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': SUPABASE_KEY,
+        'Authorization': 'Bearer ' + SUPABASE_KEY
+      },
+      body: JSON.stringify(payload)
+    }).then(function(res){
+      if(!res.ok){ throw new Error('Request failed: ' + res.status); }
+      document.getElementById('formCard').style.display = 'none';
+      document.getElementById('successCard').style.display = 'block';
+    }).catch(function(err){
+      statusMsg.textContent = "Couldn't send — check your connection and try again.";
+      statusMsg.className = 'status-msg err';
+      submitBtn.disabled = false;
+    });
+  });
+
+  document.getElementById('sendAnotherBtn').addEventListener('click', function(){
+    form.reset();
+    rating = 0;
+    starBtns.forEach(function(b){ b.classList.remove('active'); });
+    statusMsg.textContent = '';
+    submitBtn.disabled = false;
+    document.getElementById('successCard').style.display = 'none';
+    document.getElementById('formCard').style.display = 'block';
+  });
+})();
+</script>
+</body>
+</html>
