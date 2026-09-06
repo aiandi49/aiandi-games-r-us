@@ -76,32 +76,31 @@ body{
 .stat-card .v{ font-size:18px; font-weight:700; color:var(--gold); margin-top:2px; font-variant-numeric:tabular-nums; }
 .stat-card .v.accent{ color:var(--accent); }
 .stat-card .v.violet{ color:var(--violet); }
-.ribbons-left{ position:absolute; top:16px; left:16px; display:flex; flex-direction:column; gap:12px; z-index:2; pointer-events:none; }
-.ribbons-right{ position:absolute; top:16px; right:16px; display:flex; flex-direction:column; gap:12px; z-index:2; pointer-events:none; align-items:flex-end; }
+.ribbons-left{ position:absolute; top:20px; left:-6px; display:flex; flex-direction:column; gap:20px; z-index:2; pointer-events:none; }
+.ribbons-right{ position:absolute; top:20px; right:-6px; display:flex; flex-direction:column; gap:20px; z-index:2; pointer-events:none; align-items:flex-end; }
 .reset-ribbon{
-  width:104px; padding:12px 8px 24px; text-align:center; color:#fff;
-  background:linear-gradient(180deg,#d5544a,#8f221f); border-radius:8px 8px 0 0;
-  box-shadow:0 8px 18px rgba(0,0,0,0.45); position:relative;
-  clip-path:polygon(0 0, 100% 0, 100% 80%, 50% 100%, 0 80%);
+  width:120px; padding:6px 0; text-align:center; color:#3a2405; font-weight:800;
+  background:linear-gradient(180deg,#ffe08a,var(--gold)); border:1px solid rgba(0,0,0,0.2);
+  box-shadow:0 6px 14px rgba(0,0,0,0.5); transform:rotate(-38deg); transform-origin:center;
+  font-family:Georgia,serif; font-style:italic; font-size:13px; letter-spacing:1.5px; text-transform:uppercase;
 }
-.reset-ribbon:nth-child(odd){ transform:rotate(-4deg); }
-.reset-ribbon:nth-child(even){ transform:rotate(3deg); }
-.reset-ribbon .rb-num{ font-family:Georgia,serif; font-weight:800; font-size:26px; line-height:1; }
-.reset-ribbon .rb-lbl{ font-size:10px; letter-spacing:1.2px; text-transform:uppercase; font-weight:700; margin-top:4px; opacity:0.95; }
+.ribbons-right .reset-ribbon{ transform:rotate(38deg); }
 @media (max-width:640px){
-  .reset-ribbon{ width:78px; padding:9px 6px 18px; }
-  .reset-ribbon .rb-num{ font-size:19px; }
-  .reset-ribbon .rb-lbl{ font-size:8px; }
+  .reset-ribbon{ width:92px; font-size:10px; padding:4px 0; }
 }
 .milestone-ribbons{ position:absolute; bottom:14px; left:0; right:0; display:flex; gap:10px; justify-content:center; flex-wrap:wrap; z-index:2; pointer-events:none; padding:0 16px; }
 .milestone-ribbon{
-  width:88px; padding:10px 6px 20px; text-align:center; color:#3a2405;
-  background:linear-gradient(180deg,#ffe08a,var(--gold)); border-radius:8px 8px 0 0;
-  box-shadow:0 8px 16px rgba(0,0,0,0.4); clip-path:polygon(0 0, 100% 0, 100% 80%, 50% 100%, 0 80%);
+  width:110px; padding:6px 0; text-align:center; color:#0a2e1c; font-weight:800;
+  background:linear-gradient(180deg,#9be8b5,var(--good)); border:1px solid rgba(0,0,0,0.2);
+  box-shadow:0 6px 14px rgba(0,0,0,0.5);
+  font-family:Georgia,serif; font-style:italic; font-size:12px; letter-spacing:1px; text-transform:uppercase;
 }
-.milestone-ribbon .mr-num{ font-family:Georgia,serif; font-weight:800; font-size:17px; line-height:1; }
-.milestone-ribbon .mr-lbl{ font-size:8.5px; letter-spacing:1px; text-transform:uppercase; font-weight:700; margin-top:3px; }
-@media (max-width:640px){ .milestone-ribbon{ width:66px; padding:7px 5px 14px; } .milestone-ribbon .mr-num{ font-size:13px; } }
+@media (max-width:640px){ .milestone-ribbon{ width:88px; font-size:10px; padding:4px 0; } }
+.gameover-flash{ position:fixed; inset:0; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:12px; pointer-events:none; z-index:70; opacity:0; background:rgba(4,2,10,0); }
+.gameover-flash.show{ animation:gameOverPop 2s ease forwards; }
+.gameover-flash .go-title{ font-family:Georgia,serif; font-style:italic; font-weight:800; font-size:clamp(36px,8vw,72px); color:var(--gold); text-shadow:0 0 40px rgba(240,195,77,0.8); letter-spacing:3px; }
+.gameover-flash .go-sub{ font-size:14px; color:var(--dark-text); letter-spacing:1.5px; text-transform:uppercase; text-align:center; padding:0 20px; }
+@keyframes gameOverPop{ 0%{opacity:0; transform:scale(0.7); background:rgba(4,2,10,0);} 12%{opacity:1; transform:scale(1.06); background:rgba(4,2,10,0.55);} 22%{transform:scale(1); background:rgba(4,2,10,0.55);} 85%{opacity:1; background:rgba(4,2,10,0.55);} 100%{opacity:0; background:rgba(4,2,10,0);} }
 .standing-chip{ display:inline-block; padding:5px 12px; border-radius:20px; font-size:11px; font-weight:700; margin:3px; }
 .standing-chip.gold{ background:rgba(240,195,77,0.15); color:var(--gold); border:1px solid rgba(240,195,77,0.4); }
 .standing-chip.red{ background:rgba(213,84,74,0.15); color:#e0645a; border:1px solid rgba(213,84,74,0.4); }
@@ -692,7 +691,7 @@ footer .flipR{ display:inline-block; transform:scaleX(-1); }
       r.className = 'milestone-ribbon';
       r.title = 'Reached a $'+t.toLocaleString()+' bankroll';
       var label = t>=1000 ? '$'+Math.round(t/1000)+'K' : '$'+t;
-      r.innerHTML = '<div class="mr-num">'+label+'</div><div class="mr-lbl">Bankroll</div>';
+      r.textContent = label;
       wrap.appendChild(r);
     });
   }
@@ -705,7 +704,7 @@ footer .flipR{ display:inline-block; transform:scaleX(-1); }
       var ribbon = document.createElement('div');
       ribbon.className = 'reset-ribbon';
       ribbon.title = 'Bankroll reset #' + i;
-      ribbon.innerHTML = '<div class="rb-num">1</div><div class="rb-lbl">Reset</div>';
+      ribbon.textContent = 'Reset';
       // first 2 resets stack on the left, next 2 on the right, then alternate
       var slot = (i-1) % 4;
       if(slot < 2) left.appendChild(ribbon); else right.appendChild(ribbon);
@@ -1083,7 +1082,8 @@ footer .flipR{ display:inline-block; transform:scaleX(-1); }
         el.betRail.style.display = 'none';
         setMsg('Cut card reached — that\'s game over for this shoe. Click "New Game" when you\'re ready for the next one.', true);
         render();
-        showStandings();
+        celebrateGameOver();
+        setTimeout(showStandings, 1600);
       }, 900);
       return;
     }
@@ -1200,6 +1200,14 @@ footer .flipR{ display:inline-block; transform:scaleX(-1); }
     updateBankUI();
     render();
     setMsg('New game — fresh $500 bankroll, 5 reversals ready, reset count back to 0. Place your bet.');
+  }
+
+  function celebrateGameOver(){
+    var flash = document.createElement('div');
+    flash.className = 'gameover-flash show';
+    flash.innerHTML = '<div class="go-title">GAME OVER</div><div class="go-sub">This shoe is done — final standings coming up</div>';
+    document.body.appendChild(flash);
+    setTimeout(function(){ flash.remove(); }, 2200);
   }
 
   function showStandings(){
