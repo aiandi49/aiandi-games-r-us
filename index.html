@@ -84,6 +84,17 @@ body{
 .game-card h2.accent{ color:var(--accent); }
 .game-card.poker .cta{ color:var(--accent); }
 .game-card.roulette .cta{ color:var(--good); }
+.game-card.fury .cta{ color:#ff5c8a; }
+.game-card h2.fury{ color:#ff5c8a; }
+html[data-theme="light"] .about-item h4.fury{ color:#d42a5f; }
+.about-item h4.fury{ color:#ff5c8a; }
+.new-badge{
+  position:absolute; top:18px; right:18px; text-align:center;
+  background:linear-gradient(180deg,#ff8fb0,#ff5c8a);
+  color:#2a0612; font-weight:800; font-size:10.5px; letter-spacing:1.2px; text-transform:uppercase;
+  padding:6px 12px; border-radius:20px; box-shadow:0 4px 12px rgba(0,0,0,0.4); z-index:2;
+}
+@media (max-width:640px){ .new-badge{ font-size:9px; padding:5px 10px; top:14px; right:14px; } }
 .game-card h2.good{ color:var(--good); }
 
 .game-card{
@@ -150,6 +161,7 @@ footer .flipR{ display:inline-block; transform:scaleX(-1); }
     </div>
     <button class="iconbtn" id="themeBtn">🌙 Theme</button>
       <a class="iconbtn" href="./feedback.html" style="text-decoration:none; display:inline-flex; align-items:center;">💬 Beta Feedback</a>
+      <a class="iconbtn" href="./engine/index.html" style="text-decoration:none; display:inline-flex; align-items:center;">✦ Table Finder</a>
       <div class="fontctl" role="group" aria-label="Text size">
         <button type="button" data-fs="sm" aria-label="Small text">A-</button>
         <button type="button" data-fs="md" class="active" aria-label="Default text">A</button>
@@ -184,6 +196,10 @@ footer .flipR{ display:inline-block; transform:scaleX(-1); }
         <div class="about-item">
           <h4 class="accent">Table VII Poker</h4>
           <p>The companion for a live poker night. Real cards get dealt at the real table — this just keeps everything else honest: a blind clock that steps up on schedule, a chip tracker for every player's stack, quick eliminations when someone's felted, and a payout calculator that splits the pool the moment the last hand's done.</p>
+        </div>
+        <div class="about-item">
+          <h4 class="fury">Blind Poker Fury</h4>
+          <p>Hold'em with the lights off. Everyone bets before a single card is dealt, and nobody ever looks at their own hand. The dealer lays out every card face down, then each player flips one card of their choice and there's one more round of betting, or switch to Blind rules and go straight to the reveal. Three, two, one, and the last cards turn over. Straddle toggle, up to seven seats, and a braille-and-voice mode that reads every card aloud.</p>
         </div>
         <div class="about-item">
           <h4 style="color:var(--good);">Roulette Strategy Lab</h4>
@@ -240,6 +256,19 @@ footer .flipR{ display:inline-block; transform:scaleX(-1); }
       </div>
       <p>Cards are dealt live at the table — this just runs the clock, tracks every stack, and works out the payout split when the last hand's done.</p>
       <span class="cta">Run Poker Night →</span>
+    </a>
+
+    <a class="game-card fury" href="./blind-poker/index.html">
+      <div class="new-badge">New</div>
+      <div class="kicker">Poker — The Blind Variant</div>
+      <h2 class="fury">Blind Poker Fury</h2>
+      <div class="badge-row">
+        <span class="tag">Bet before the deal</span>
+        <span class="tag">Flip one, bet again</span>
+        <span class="tag">3-2-1 reveal</span>
+      </div>
+      <p>Nobody sees their cards, not even you. Bet on a feeling, watch the board land, flip one card, then sweat the countdown. Braille and voice mode built in.</p>
+      <span class="cta">Play Blind →</span>
     </a>
 
     <a class="game-card roulette" href="./roulette/index.html">

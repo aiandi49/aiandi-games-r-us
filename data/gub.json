@@ -1,0 +1,96 @@
+{
+  "name": "Games R Us",
+  "updated": "2026-09-27",
+  "entries": [
+    {
+      "id": "blackjack-reversal",
+      "title": "Blackjack Reversal",
+      "url": "/blackjack-reversal.html",
+      "summary": "Solo blackjack against the dealer where you can make the dealer play their whole hand first, five times per shoe.",
+      "body": "The original table. Bet whatever you like against an 8-deck shoe. Once per hand you can call a Reversal: the dealer flips the hole card and plays out their entire hand before you decide anything, so you know the exact number you need to beat before you hit, stand, double, or split. You get five Reversal calls per shoe. The dealer stands on all 17s, there is no insurance, and a natural blackjack pays 3 to 1. Best for someone playing alone who wants control and a slower, thinking game.",
+      "tags": ["blackjack", "solo", "single player", "strategy", "reversal", "dealer", "free betting", "beginner friendly", "relaxed"],
+      "details": { "Game": "Blackjack vs. dealer", "Players": "Solo", "Shoe": "8 decks (416 cards)", "Special move": "5 Reversals per shoe", "Dealer": "Stands on all 17s", "Blackjack pays": "3 to 1", "Insurance": "None", "Starting bankroll": "$500" }
+    },
+    {
+      "id": "half-bank",
+      "title": "Half-Bank Mode",
+      "url": "/blackjack-reversal-halfbank.html",
+      "summary": "Blackjack Reversal where every bet is forced to half your bankroll. Huge swings, fast busts.",
+      "body": "Same rules as Blackjack Reversal with one twist: every bet is automatically half of whatever is left in your bankroll, rounded so a double is always affordable. You cannot ease off. You either build a run or go broke fast. A full shoe plays out to the last card, and you get a personal recap at the end. There is no cross-player leaderboard yet; the page itself says that needs player profiles, which aren't built.",
+      "tags": ["blackjack", "solo", "high stakes", "high variance", "adrenaline", "fast", "aggressive", "risky", "forced bet"],
+      "details": { "Game": "Blackjack vs. dealer", "Players": "Solo", "Bet size": "Forced to half your bankroll", "Special move": "5 Reversals per shoe", "Session": "One full shoe", "Leaderboard": "Not yet (personal recap only)" }
+    },
+    {
+      "id": "bj-tournament",
+      "title": "Table VII Tournament",
+      "url": "/bj-tournament/index.html",
+      "summary": "Blackjack where the players compete against each other, not the house. Up to seven seats and escalating blinds.",
+      "body": "Blackjack as a tournament. Everyone plays against each other rather than the house, and the biggest bank when the tournament ends takes the top spots. Up to seven seats, escalating blinds on a countdown clock, and a rotating dealer button so someone at the table reveals one dealer card each round. Built with a real table in mind: real felt, real chips, a group of friends.",
+      "tags": ["blackjack", "tournament", "group", "friends", "party", "competitive", "multiplayer", "live table", "game night"],
+      "details": { "Game": "Blackjack tournament", "Players": "Up to 7 seats", "Opponents": "Each other, not the house", "Blinds": "Escalate on a clock", "Twist": "Rotating button reveals a dealer card", "Winner": "Biggest bank at the end" }
+    },
+    {
+      "id": "table-vii-poker",
+      "title": "Table VII Poker",
+      "url": "/poker/index.html",
+      "summary": "Full no-limit Texas Hold'em, six-handed: you against five computer opponents, with a blind clock and payouts.",
+      "body": "No-limit Texas Hold'em played on screen: you against five house opponents. Blinds post automatically and step up on a clock you set in Settings (8 minutes per level by default). Two hole cards each, then flop, turn, and river with a betting round after each, and a real showdown. Side pots are handled automatically. Busted players are out, and the night ends when one stack is left; the payout splits by the places you configure. Defaults: $500 starting stacks, $5/$10 blinds.",
+      "tags": ["poker", "hold'em", "texas holdem", "no limit", "solo", "vs computer", "classic", "skill", "tournament", "strategy"],
+      "details": { "Game": "No-limit Texas Hold'em", "Players": "You vs. 5 computer opponents", "Starting stack": "$500", "Blinds": "$5 / $10, rising on a clock", "Betting rounds": "Four (pre-flop to river)", "Payouts": "Winner-take-all, top 2, or top 3" }
+    },
+    {
+      "id": "blind-poker-fury",
+      "title": "Blind Poker Fury",
+      "url": "/blind-poker/index.html",
+      "summary": "Hold'em with the lights off: everyone bets before the deal, nobody sees their own cards, and a 3-2-1 countdown reveals the winner.",
+      "body": "The newest table. Blinds post and a full round of betting happens before a single card is dealt, so everyone is betting on a feeling. Then the dealer deals two face-down hole cards to each player still in, and burns and deals the flop, turn and river. Nobody ever looks at their own hand, including you. Under Fury rules each player chooses their left or right card, all flip at once, and there is a second round of betting. Then three, two, one, and the last cards turn over. The best five-card hand from two hole cards plus the board wins. You play against up to six computer opponents.",
+      "tags": ["poker", "blind", "luck", "gut feel", "new", "suspense", "fast", "party", "vs computer", "no peeking", "fun", "casual", "chaotic"],
+      "details": { "Game": "Blind hold'em variant", "Players": "2 to 7 seats (you + computer)", "Starting stack": "$1,000", "Blinds": "$5 / $10, optional doubling", "Betting rounds": "One or two (your choice)", "Reveal": "3-2-1 countdown" }
+    },
+    {
+      "id": "blind-poker-fury-rules",
+      "title": "Blind Poker Fury: Fury rules",
+      "url": "/blind-poker/index.html",
+      "summary": "Two betting rounds: blind bet before the deal, then each player shows one chosen card and everyone bets again.",
+      "body": "The default setup. Round one is the blind bet before any cards exist. After the full board is dealt, every player picks their left or right hole card without knowing what either one is, and all the picks flip at the same time. You now see the board, your one card, and one card from each opponent, and there is a second round of betting with that partial information. Anyone who is all-in shows their left card automatically. Then the 3-2-1 countdown and the final flip. Choose this for a mix of luck and reading the table.",
+      "tags": ["blind poker fury", "fury rules", "two rounds", "strategy", "reading", "partial information", "default"],
+      "details": { "Rules": "Fury", "Betting rounds": "Two", "Card you show": "Left or right, your pick", "Second round": "After one card each is up", "Set in": "Table setup, Rules: Fury" }
+    },
+    {
+      "id": "blind-poker-blind-rules",
+      "title": "Blind Poker Fury: Blind rules",
+      "url": "/blind-poker/index.html",
+      "summary": "One betting round only, before the deal. Left cards flip on their own, then the 3-2-1 reveal. Pure luck and nerve.",
+      "body": "The purest version. All betting happens before the deal, and that is it. Once the board is out, everyone's left card flips automatically, the countdown runs, and the right cards turn over. Nothing you see can change your bet. Choose this for fast hands, pure gut calls, and maximum suspense.",
+      "tags": ["blind poker fury", "blind rules", "one round", "pure luck", "fast", "suspense", "simple"],
+      "details": { "Rules": "Blind", "Betting rounds": "One (before the deal)", "Card shown": "Left card, automatically", "Hand speed": "Fastest", "Set in": "Table setup, Rules: Blind" }
+    },
+    {
+      "id": "blind-poker-straddle",
+      "title": "Blind Poker Fury: Straddle",
+      "url": "/blind-poker/index.html",
+      "summary": "Optional toggle: the player after the big blind posts double the big blind before the blind bet.",
+      "body": "Turn Straddle on in Table setup and, with at least three players, the seat after the big blind posts a straddle of twice the big blind before any betting, and acts last in the blind round. It doubles the price of playing and makes pots bigger from the start.",
+      "tags": ["blind poker fury", "straddle", "bigger pots", "action", "high stakes", "option"],
+      "details": { "Option": "Straddle", "Amount": "2x the big blind", "Who posts": "Seat after the big blind", "Needs": "3 or more players", "Set in": "Table setup" }
+    },
+    {
+      "id": "blind-poker-braille-voice",
+      "title": "Blind Poker Fury: Braille and voice",
+      "url": "/blind-poker/index.html",
+      "summary": "Accessibility mode: braille card faces, spoken play-by-play, a Hear table button, and full keyboard play.",
+      "body": "Built for blind and low-vision players. Card faces show English braille (rank on top, suit in the middle) instead of print, every card has a spoken label for screen readers and refreshable braille displays, and the table talks through each deal, reveal, countdown and result using the device's built-in speech. The Hear table button (or H) reads your cards, the board and what everyone is showing. Keyboard: F fold, C check or call, R raise, A all-in, L or left arrow show left, right arrow show right, N next hand. On-screen braille dots are visual only; they cannot be felt on a flat screen without a braille display.",
+      "tags": ["accessibility", "blind", "low vision", "visually impaired", "braille", "voice", "screen reader", "keyboard", "audio"],
+      "details": { "Mode": "Braille and voice", "Card faces": "English braille", "Audio": "Device speech", "Screen readers": "Every card labeled", "Keyboard play": "Yes", "Set in": "Table setup" }
+    },
+    {
+      "id": "roulette-lab",
+      "title": "Roulette Strategy Lab",
+      "url": "/roulette/index.html",
+      "summary": "Not a playable table yet: a spin simulator, a streak buster, and a bankroll simulator that tests betting systems.",
+      "body": "In development. There is no real roulette table yet. What works today: a spin simulator, a streak buster that shows what actually follows a run of reds or blacks, and a bankroll simulator that runs hundreds of sessions against Martingale, Fibonacci and other systems, so you can see the honest math before sitting down at a wheel.",
+      "tags": ["roulette", "simulator", "math", "systems", "martingale", "fibonacci", "learning", "in development", "not playable"],
+      "details": { "Status": "In development", "Playable table": "Not yet", "Tools": "Spin, streak, bankroll simulators", "Systems tested": "Martingale, Fibonacci and more" }
+    }
+  ]
+}

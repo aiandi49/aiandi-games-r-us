@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark" data-font-size="md">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Table Finder — AI &amp; I's Games R Us</title>
+<meta name="description" content="Tell the Table Finder what kind of game night you want and it picks the right Games R Us table, rules and settings for you.">
+<script>
+(function(){
+  var r=document.documentElement, t='dark', f='md';
+  try{ t=localStorage.getItem('pref-theme')||'dark'; f=localStorage.getItem('pref-font-size')||'md'; }catch(e){}
+  if(t!=='light'&&t!=='dark') t='dark';
+  if(['sm','md','lg','xl'].indexOf(f)<0) f='md';
+  r.setAttribute('data-theme',t); r.setAttribute('data-font-size',f);
+})();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --indigo:#6366f1; --purple:#a855f7; --indigo-2:#818cf8; --purple-2:#c084fc; --pink:#f472b6;
+  --head:'Space Grotesk','Segoe UI',system-ui,-apple-system,Roboto,Arial,sans-serif;
+  --sans:'Segoe UI',system-ui,-apple-system,Roboto,'Helvetica Neue',Arial,sans-serif;
+}
+html[data-font-size="sm"]{ font-size:14px; }
+html[data-font-size="md"]{ font-size:16px; }
+html[data-font-size="lg"]{ font-size:18px; }
+html[data-font-size="xl"]{ font-size:20px; }
+html[data-theme="dark"]{
+  --bg:#070614; --text:#eef0ff; --dim:rgba(226,228,255,0.66); --faint:rgba(226,228,255,0.4);
+  --glass:rgba(22,20,48,0.72); --glass-solid:#16142f; --edge:rgba(129,140,248,0.24); --field:rgba(10,9,28,0.7);
+  --bubble-me:linear-gradient(135deg,#6366f1,#a855f7); --bubble-ai:rgba(255,255,255,0.06);
+  --track:rgba(255,255,255,0.1);
+}
+html[data-theme="light"]{
+  --bg:#f4f3ff; --text:#17153a; --dim:rgba(23,21,58,0.68); --faint:rgba(23,21,58,0.45);
+  --glass:rgba(255,255,255,0.78); --glass-solid:#ffffff; --edge:rgba(99,102,241,0.25); --field:#ffffff;
+  --bubble-me:linear-gradient(135deg,#6366f1,#a855f7); --bubble-ai:rgba(99,102,241,0.08);
+  --track:rgba(99,102,241,0.14);
+}
+*{ box-sizing:border-box; }
+html{ background-color:var(--bg); }
+html,body{ margin:0; padding:0; }
+body{ min-height:100vh; min-height:100dvh; color:var(--text); font-family:var(--sans); font-size:1rem; position:relative; }
+/* vibrant glow, never dimmed by a scrim */
+.glow{ position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden;
+  background:
+    radial-gradient(40rem 30rem at 8% 0%, rgba(99,102,241,0.55), transparent 60%),
+    radial-gradient(36rem 28rem at 95% 12%, rgba(244,114,182,0.42), transparent 60%),
+    radial-gradient(44rem 34rem at 60% 105%, rgba(168,85,247,0.5), transparent 62%),
+    radial-gradient(22rem 18rem at 35% 55%, rgba(129,140,248,0.22), transparent 70%); }
+html[data-theme="light"] .glow{ opacity:0.75; }
+.wrap{ position:relative; z-index:1; width:100%;
+  padding:max(1rem, env(safe-area-inset-top)) max(0.8rem, env(safe-area-inset-right)) calc(2rem + env(safe-area-inset-bottom)) max(0.8rem, env(safe-area-inset-left)); }
+@media (min-width:900px){ .wrap{ padding-left:2rem; padding-right:2rem; } }
+:focus-visible{ outline:2px solid var(--pink); outline-offset:2px; }
+.sr-only{ position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+
+/* header */
+.top{ display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:0.7rem; margin-bottom:1rem; }
+.brand{ display:flex; align-items:center; gap:0.7rem; text-decoration:none; color:var(--text); min-width:0; }
+.mark{ width:2.4rem; height:2.4rem; border-radius:0.75rem; flex:none; display:grid; place-items:center; font-family:var(--head); font-weight:700; font-size:1.1rem; color:#fff;
+  background:linear-gradient(135deg,var(--indigo),var(--purple) 55%,var(--pink)); box-shadow:0 6px 20px rgba(168,85,247,0.45); }
+.brand h1{ margin:0; font-family:var(--head); font-weight:700; font-size:1.35rem; letter-spacing:-0.01em; line-height:1.1; }
+.brand p{ margin:0.1rem 0 0; font-size:0.78rem; color:var(--dim); }
+.tools{ display:flex; flex-wrap:wrap; gap:0.4rem; align-items:center; }
+.tbtn{ font-family:inherit; font-size:0.74rem; color:var(--text); background:var(--glass-solid); background:var(--glass); border:1px solid var(--edge); border-radius:0.6rem;
+  padding:0.5rem 0.75rem; cursor:pointer; text-decoration:none; display:inline-flex; align-items:center; gap:0.3rem; line-height:1.2; }
+.tbtn:hover{ border-color:var(--indigo-2); }
+.fs{ display:flex; gap:1px; padding:0.2rem; border-radius:0.6rem; border:1px solid var(--edge); background:var(--glass-solid); background:var(--glass); }
+.fs button{ font-family:inherit; background:none; border:none; color:var(--text); font-size:0.7rem; font-weight:700; padding:0.38rem 0.55rem; border-radius:0.45rem; cursor:pointer; line-height:1; }
+.fs button[aria-pressed="true"]{ background:linear-gradient(135deg,var(--indigo),var(--purple)); color:#fff; }
+@media (max-width:639px){ .top{ flex-direction:column; text-align:center; } .brand{ flex-direction:column; } .tools{ justify-content:center; } }
+
+/* 4-card row */
+.row{ display:grid; grid-template-columns:minmax(0,1fr); gap:0.9rem; align-items:start; }
+@media (min-width:700px){ .row{ grid-template-columns:repeat(2,minmax(0,1fr)); } .chat{ grid-column:1 / -1; } .details{ grid-column:1 / -1; } }
+@media (min-width:1100px){ .row{ grid-template-columns:minmax(0,1.7fr) repeat(3,minmax(0,1fr)); align-items:stretch; } .chat, .details{ grid-column:auto; } }
+
+.card{ position:relative; border-radius:1.1rem; padding:1.1rem 1rem 1rem; min-width:0; overflow:hidden;
+  background:var(--glass-solid); border:1px solid var(--edge); box-shadow:0 18px 40px rgba(8,6,30,0.35); }
+@supports ((-webkit-backdrop-filter:blur(1px)) or (backdrop-filter:blur(1px))){
+  .card{ background:var(--glass); -webkit-backdrop-filter:blur(18px) saturate(1.3); backdrop-filter:blur(18px) saturate(1.3); }
+}
+.card::before{ content:""; position:absolute; left:0; right:0; top:0; height:3px; background:var(--strip); }
+.chat{ --strip:linear-gradient(90deg,var(--indigo),var(--indigo-2)); }
+.topmatch{ --strip:linear-gradient(90deg,var(--purple),var(--purple-2)); }
+.shortlist{ --strip:linear-gradient(90deg,var(--pink),var(--purple-2)); }
+.details{ --strip:linear-gradient(90deg,var(--indigo-2),var(--pink)); }
+.card h2{ font-family:var(--head); font-weight:600; font-size:0.95rem; margin:0 0 0.75rem; display:flex; align-items:center; justify-content:space-between; gap:0.5rem; }
+.card h2 small{ font-family:var(--sans); font-weight:500; font-size:0.7rem; color:var(--faint); }
+.empty{ color:var(--dim); font-size:0.85rem; line-height:1.6; }
+
+/* chat */
+.chat{ display:flex; flex-direction:column; }
+@media (min-width:1100px){ .chat{ height:calc(100vh - 8.5rem); height:calc(100dvh - 8.5rem); min-height:34rem; } }
+.log{ flex:1 1 auto; overflow-y:auto; display:flex; flex-direction:column; gap:0.6rem; padding:0.2rem 0.1rem 0.6rem; min-height:16rem; max-height:60vh; }
+@media (min-width:1100px){ .log{ max-height:none; min-height:0; } }
+.msg{ max-width:88%; padding:0.7rem 0.85rem; border-radius:1rem; font-size:0.92rem; line-height:1.55; white-space:pre-wrap; overflow-wrap:anywhere; }
+.msg.ai{ background:var(--bubble-ai); border:1px solid var(--edge); align-self:flex-start; border-bottom-left-radius:0.3rem; }
+.msg.me{ background:var(--bubble-me); color:#fff; align-self:flex-end; border-bottom-right-radius:0.3rem; }
+.msg.err{ background:rgba(244,114,182,0.12); border:1px solid rgba(244,114,182,0.45); align-self:stretch; max-width:none; font-size:0.85rem; }
+.msg.err button{ margin-left:0.4rem; font:inherit; font-weight:700; color:var(--pink); background:none; border:none; cursor:pointer; text-decoration:underline; padding:0; }
+.typing{ display:inline-flex; gap:0.3rem; align-items:center; }
+.typing i{ width:0.45rem; height:0.45rem; border-radius:50%; background:var(--purple-2); animation:blink 1.1s infinite ease-in-out; }
+.typing i:nth-child(2){ animation-delay:.15s; } .typing i:nth-child(3){ animation-delay:.3s; }
+@keyframes blink{ 0%,80%,100%{ opacity:.25; transform:translateY(0);} 40%{ opacity:1; transform:translateY(-3px);} }
+.composer{ display:flex; gap:0.5rem; align-items:flex-end; margin-top:0.5rem; }
+.composer textarea{ flex:1 1 auto; min-width:0; resize:none; font:inherit; font-size:1rem; color:var(--text); background:var(--field); border:1px solid var(--edge); border-radius:0.8rem;
+  padding:0.7rem 0.8rem; min-height:3rem; max-height:9rem; line-height:1.4; }
+.composer textarea::placeholder{ color:var(--faint); }
+.send{ flex:none; font-family:var(--head); font-weight:600; font-size:0.9rem; color:#fff; border:none; border-radius:0.8rem; padding:0 1.1rem; height:3rem; cursor:pointer;
+  background:linear-gradient(135deg,var(--indigo),var(--purple) 60%,var(--pink)); box-shadow:0 8px 20px rgba(168,85,247,0.35); }
+.send:disabled{ opacity:0.5; cursor:not-allowed; }
+.chat-foot{ display:flex; justify-content:space-between; gap:0.5rem; flex-wrap:wrap; margin-top:0.5rem; font-size:0.7rem; color:var(--faint); }
+.linkbtn{ font:inherit; color:var(--dim); background:none; border:none; cursor:pointer; text-decoration:underline; padding:0; }
+
+/* top match */
+.tm-title{ font-family:var(--head); font-weight:700; font-size:1.35rem; line-height:1.2; margin:0 0 0.35rem; }
+.tm-score{ display:inline-block; font-family:var(--head); font-weight:700; font-size:0.78rem; color:#fff; padding:0.2rem 0.55rem; border-radius:1rem;
+  background:linear-gradient(135deg,var(--purple),var(--pink)); margin-bottom:0.6rem; }
+.tm-why{ font-size:0.88rem; line-height:1.6; color:var(--dim); margin:0 0 0.9rem; }
+.open{ display:inline-flex; align-items:center; justify-content:center; gap:0.4rem; width:100%; text-decoration:none; font-family:var(--head); font-weight:600; font-size:0.9rem;
+  color:#fff; padding:0.75rem 1rem; border-radius:0.8rem; background:linear-gradient(135deg,var(--indigo),var(--purple)); }
+.open:hover{ filter:brightness(1.1); }
+
+/* shortlist */
+.gauge{ display:flex; align-items:center; gap:0.9rem; margin-bottom:0.8rem; }
+.gauge svg{ width:5.5rem; height:5.5rem; flex:none; transform:rotate(-90deg); }
+.gauge .num{ font-family:var(--head); font-weight:700; font-size:1.6rem; line-height:1; }
+.gauge .lbl{ font-size:0.72rem; color:var(--dim); margin-top:0.2rem; line-height:1.4; }
+.gauge-arc{ transition:stroke-dashoffset .6s ease; }
+.sl-list{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:0.45rem; }
+.sl-item{ width:100%; display:flex; align-items:center; gap:0.6rem; text-align:left; font:inherit; color:var(--text); cursor:pointer;
+  background:var(--bubble-ai); border:1px solid var(--edge); border-radius:0.75rem; padding:0.55rem 0.65rem; }
+.sl-item[aria-pressed="true"]{ border-color:var(--pink); box-shadow:0 0 0 1px var(--pink); }
+.sl-rank{ font-family:var(--head); font-weight:700; color:var(--purple-2); width:1.2rem; flex:none; }
+.sl-name{ flex:1; min-width:0; font-size:0.85rem; font-weight:600; overflow-wrap:anywhere; }
+.sl-pct{ font-family:var(--head); font-weight:700; font-size:0.8rem; color:var(--pink); flex:none; }
+.bar{ height:4px; border-radius:2px; background:var(--track); margin-top:0.3rem; overflow:hidden; }
+.bar i{ display:block; height:100%; background:linear-gradient(90deg,var(--indigo),var(--pink)); }
+
+/* details: label/value rows, stacked cards on phones */
+.dl{ margin:0; display:grid; grid-template-columns:minmax(0,1fr); gap:0.45rem; }
+.dl div{ background:var(--bubble-ai); border:1px solid var(--edge); border-radius:0.7rem; padding:0.5rem 0.65rem; min-width:0; }
+.dl dt{ font-size:0.68rem; color:var(--faint); margin-bottom:0.15rem; }
+.dl dd{ margin:0; font-size:0.88rem; font-weight:600; overflow-wrap:anywhere; }
+@media (min-width:700px) and (max-width:1099px){ .dl{ grid-template-columns:repeat(2,minmax(0,1fr)); } }
+.d-title{ font-family:var(--head); font-weight:600; font-size:1rem; margin:0 0 0.6rem; }
+.note{ margin:1rem auto 0; max-width:60rem; text-align:center; font-size:0.72rem; line-height:1.6; color:var(--faint); }
+.note a{ color:var(--dim); }
+@media (prefers-reduced-motion:reduce){ .typing i{ animation:none; } .gauge-arc{ transition:none; } }
+</style>
+</head>
+<body>
+<div class="glow" aria-hidden="true"></div>
+<div class="wrap">
+  <header class="top">
+    <a class="brand" href="../index.html" aria-label="Back to the Games R Us hub">
+      <span class="mark" aria-hidden="true">✦</span>
+      <span><h1>Table Finder</h1><p>Games R Us, by AI &amp; I</p></span>
+    </a>
+    <div class="tools">
+      <a class="tbtn" href="../index.html">← Hub</a>
+      <a class="tbtn" href="../feedback.html">💬 Feedback</a>
+      <button class="tbtn" id="themeBtn" type="button" aria-pressed="true">☀ Light</button>
+      <div class="fs" role="group" aria-label="Text size">
+        <button type="button" data-fs="sm" aria-label="Small text" aria-pressed="false">A-</button>
+        <button type="button" data-fs="md" aria-label="Default text" aria-pressed="true">A</button>
+        <button type="button" data-fs="lg" aria-label="Large text" aria-pressed="false">A+</button>
+        <button type="button" data-fs="xl" aria-label="Extra large text" aria-pressed="false">A++</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="row">
+    <section class="card chat" aria-label="Chat with the Table Finder">
+      <h2>Chat <small>One question at a time</small></h2>
+      <div class="log" id="log" aria-live="polite"></div>
+      <form class="composer" id="form" autocomplete="off">
+        <label class="sr-only" for="input">Describe the game night you want</label>
+        <textarea id="input" rows="1" maxlength="2000" placeholder="Tell me about your night: who's playing, how long, luck or skill…"></textarea>
+        <button class="send" id="send" type="submit">Send</button>
+      </form>
+      <div class="chat-foot"><span>Free games, no real money.</span><button class="linkbtn" id="resetBtn" type="button">Start over</button></div>
+    </section>
+
+    <section class="card topmatch" aria-label="Top match">
+      <h2>Top match</h2>
+      <div id="tm"><p class="empty">Your best table lands here as soon as I know a little about your night.</p></div>
+    </section>
+
+    <section class="card shortlist" aria-label="Shortlist">
+      <h2>Shortlist</h2>
+      <div class="gauge">
+        <svg viewBox="0 0 42 42" aria-hidden="true">
+          <circle cx="21" cy="21" r="16" fill="none" stroke="var(--track)" stroke-width="5"/>
+          <circle class="gauge-arc" id="arc" cx="21" cy="21" r="16" fill="none" stroke="url(#gg)" stroke-width="5" stroke-linecap="round" stroke-dasharray="100.53" stroke-dashoffset="100.53"/>
+          <defs><linearGradient id="gg" x1="0" x2="1"><stop offset="0" stop-color="#6366f1"/><stop offset="0.6" stop-color="#a855f7"/><stop offset="1" stop-color="#f472b6"/></linearGradient></defs>
+        </svg>
+        <div><div class="num" id="gaugeNum">—</div><div class="lbl" id="gaugeLbl">Fit score of your top table</div></div>
+      </div>
+      <ul class="sl-list" id="sl"><li class="empty">Up to three tables, ranked for you.</li></ul>
+    </section>
+
+    <section class="card details" aria-label="Listing details">
+      <h2>Listing details</h2>
+      <div id="dt"><p class="empty">Pick a table in the shortlist to see its rules and the setup I'd use.</p></div>
+    </section>
+  </main>
+
+  <p class="note">The Table Finder is an AI guide. It recommends tables and settings from the Games R Us rulebook and can make mistakes, so check a table's own rules card before you play. It doesn't save your chat beyond this browser tab, and it can't play hands, book a live game, or contact anyone for you. <a href="../index.html">Back to all tables</a></p>
+</div>
+
+<script>
+(function(){
+  'use strict';
+  var SS_KEY = 'tablefinder_chat_v1';
+  var WELCOME = "Hi! Tell me what kind of game night you're after and I'll find your table. Playing solo or with friends, a quick hit or a long session, pure luck or real strategy, anything helps.";
+  var $ = function(id){ return document.getElementById(id); };
+  var state = { messages:[], matches:[], selected:0 };
+  var urls = {};
+  var busy = false;
+
+  try{ var saved = JSON.parse(sessionStorage.getItem(SS_KEY)||'null'); if(saved && Array.isArray(saved.messages)) state = saved; }catch(e){}
+  function persist(){ try{ sessionStorage.setItem(SS_KEY, JSON.stringify(state)); }catch(e){} }
+
+  fetch('../data/gub.json').then(function(r){ return r.ok ? r.json() : null; }).then(function(g){
+    if(g && g.entries) g.entries.forEach(function(e){ urls[e.id] = '..' + e.url; });
+    renderCards();
+  }).catch(function(){});
+
+  // ---- MATCH parsing: strip every MATCH: line from the visible text, even malformed ones ----
+  function parseReply(text){
+    var visible = [], found = [];
+    String(text).split(/\r?\n/).forEach(function(line){
+      var t = line.trim();
+      if(/^MATCH\s*:/i.test(t)){
+        var json = t.replace(/^MATCH\s*:\s*/i,'');
+        try{
+          var m = JSON.parse(json);
+          if(m && typeof m.id==='string' && typeof m.title==='string'){
+            var sc = Math.max(0, Math.min(100, Math.round(+m.score||0)));
+            var det = {};
+            if(m.details && typeof m.details==='object') Object.keys(m.details).slice(0,8).forEach(function(k){ det[String(k)] = String(m.details[k]); });
+            found.push({ id:m.id, title:m.title, score:sc, why: typeof m.why==='string' ? m.why : '', details:det });
+          }
+        }catch(e){}
+      } else visible.push(line);
+    });
+    found.sort(function(a,b){ return b.score-a.score; });
+    return { text: visible.join('\n').replace(/\n{3,}/g,'\n\n').trim(), matches: found.slice(0,3) };
+  }
+
+  // ---- rendering (textContent only for model output) ----
+  function bubble(role, text){
+    var d = document.createElement('div');
+    d.className = 'msg ' + (role==='user' ? 'me' : 'ai');
+    d.textContent = text;
+    return d;
+  }
+  function renderLog(){
+    var log = $('log'); log.innerHTML = '';
+    log.appendChild(bubble('assistant', WELCOME));
+    state.messages.forEach(function(m){ log.appendChild(bubble(m.role, m.role==='assistant' ? parseReply(m.content).text : m.content)); });
+    log.scrollTop = log.scrollHeight;
+  }
+  function showTyping(on){
+    var ex = $('typing'); if(ex) ex.remove();
+    if(!on) return;
+    var d = document.createElement('div'); d.className='msg ai'; d.id='typing';
+    d.setAttribute('aria-label','The Table Finder is typing');
+    var s = document.createElement('span'); s.className='typing'; s.innerHTML='<i></i><i></i><i></i>'; d.appendChild(s);
+    $('log').appendChild(d); $('log').scrollTop = $('log').scrollHeight;
+  }
+  function showError(text){
+    var d = document.createElement('div'); d.className='msg err'; d.setAttribute('role','alert');
+    d.appendChild(document.createTextNode(text));
+    var b = document.createElement('button'); b.type='button'; b.textContent='Try again';
+    b.addEventListener('click', function(){ d.remove(); request(); });
+    d.appendChild(b); $('log').appendChild(d); $('log').scrollTop = $('log').scrollHeight;
+  }
+
+  function renderCards(){
+    var ms = state.matches;
+    var tm = $('tm'), sl = $('sl'), dt = $('dt');
+    var arc = $('arc'), C = 100.53;
+    if(!ms.length){
+      arc.style.strokeDashoffset = C; $('gaugeNum').textContent='—';
+      return;
+    }
+    if(state.selected >= ms.length) state.selected = 0;
+    // top match
+    var top = ms[0];
+    tm.innerHTML='';
+    var h = document.createElement('p'); h.className='tm-title'; h.textContent = top.title; tm.appendChild(h);
+    var sc = document.createElement('span'); sc.className='tm-score'; sc.textContent = top.score + '% fit'; tm.appendChild(sc);
+    var why = document.createElement('p'); why.className='tm-why'; why.textContent = top.why; tm.appendChild(why);
+    if(urls[top.id]){ var a=document.createElement('a'); a.className='open'; a.href=urls[top.id]; a.textContent='Open ' + top.title.split(':')[0] + ' →'; tm.appendChild(a); }
+    // shortlist + donut
+    arc.style.strokeDashoffset = C * (1 - top.score/100);
+    $('gaugeNum').textContent = top.score + '%';
+    sl.innerHTML='';
+    ms.forEach(function(m,i){
+      var li=document.createElement('li');
+      var b=document.createElement('button'); b.type='button'; b.className='sl-item'; b.setAttribute('aria-pressed', String(i===state.selected));
+      var r=document.createElement('span'); r.className='sl-rank'; r.textContent=String(i+1);
+      var nwrap=document.createElement('span'); nwrap.className='sl-name';
+      nwrap.appendChild(document.createTextNode(m.title));
+      var bar=document.createElement('div'); bar.className='bar'; var fill=document.createElement('i'); fill.style.width=m.score+'%'; bar.appendChild(fill); nwrap.appendChild(bar);
+      var p=document.createElement('span'); p.className='sl-pct'; p.textContent=m.score+'%';
+      b.appendChild(r); b.appendChild(nwrap); b.appendChild(p);
+      b.addEventListener('click', function(){ state.selected=i; persist(); renderCards(); });
+      li.appendChild(b); sl.appendChild(li);
+    });
+    // details
+    var sel = ms[state.selected];
+    dt.innerHTML='';
+    var t=document.createElement('p'); t.className='d-title'; t.textContent=sel.title; dt.appendChild(t);
+    var dl=document.createElement('dl'); dl.className='dl';
+    var keys = Object.keys(sel.details);
+    if(!keys.length){ var e=document.createElement('p'); e.className='empty'; e.textContent='No extra details for this one yet.'; dt.appendChild(e); }
+    keys.forEach(function(k){ var w=document.createElement('div'); var a=document.createElement('dt'); a.textContent=k; var v=document.createElement('dd'); v.textContent=sel.details[k]; w.appendChild(a); w.appendChild(v); dl.appendChild(w); });
+    if(keys.length) dt.appendChild(dl);
+    if(sel !== top && urls[sel.id]){ var o=document.createElement('a'); o.className='open'; o.style.marginTop='0.8rem'; o.href=urls[sel.id]; o.textContent='Open ' + sel.title.split(':')[0] + ' →'; dt.appendChild(o); }
+  }
+
+  // ---- network ----
+  function request(){
+    if(busy) return;
+    busy = true; $('send').disabled = true; showTyping(true);
+    fetch('/api/chat', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ messages: state.messages }) })
+      .then(function(r){ return r.json().catch(function(){ return {}; }).then(function(j){ return { ok:r.ok, j:j }; }); })
+      .then(function(res){
+        showTyping(false);
+        if(!res.ok || typeof res.j.reply!=='string'){ showError(res.j && res.j.error ? res.j.error : 'Something went wrong reaching the Table Finder.'); return; }
+        state.messages.push({ role:'assistant', content: res.j.reply });
+        var parsed = parseReply(res.j.reply);
+        if(parsed.matches.length){ state.matches = parsed.matches; state.selected = 0; } // keep last matches while it asks a follow-up
+        persist();
+        $('log').appendChild(bubble('assistant', parsed.text || 'Here is what I would pick for you.'));
+        $('log').scrollTop = $('log').scrollHeight;
+        renderCards();
+      })
+      .catch(function(){ showTyping(false); showError('No connection to the Table Finder. Check your internet and try again.'); })
+      .then(function(){ busy = false; $('send').disabled = false; });
+  }
+  function send(){
+    var v = $('input').value.trim();
+    if(!v || busy) return;
+    if(state.messages.length >= 22){ showError('This chat is getting long. Tap Start over to begin a fresh one.'); return; }
+    state.messages.push({ role:'user', content:v.slice(0,2000) }); persist();
+    $('log').appendChild(bubble('user', v));
+    $('input').value=''; autosize();
+    request();
+  }
+  $('form').addEventListener('submit', function(e){ e.preventDefault(); send(); });
+  $('input').addEventListener('keydown', function(e){ if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); send(); } });
+  function autosize(){ var t=$('input'); t.style.height='auto'; t.style.height=Math.min(t.scrollHeight, 144)+'px'; }
+  $('input').addEventListener('input', autosize);
+  $('resetBtn').addEventListener('click', function(){
+    state = { messages:[], matches:[], selected:0 }; persist();
+    renderLog(); $('tm').innerHTML='<p class="empty">Your best table lands here as soon as I know a little about your night.</p>';
+    $('sl').innerHTML='<li class="empty">Up to three tables, ranked for you.</li>';
+    $('dt').innerHTML='<p class="empty">Pick a table in the shortlist to see its rules and the setup I\'d use.</p>';
+    renderCards(); $('input').focus();
+  });
+
+  // ---- theme + text size ----
+  var root = document.documentElement;
+  function syncTheme(){ var d=root.getAttribute('data-theme')==='dark'; var b=$('themeBtn'); b.setAttribute('aria-pressed',String(d)); b.textContent = d ? '☀ Light' : '🌙 Dark'; b.setAttribute('aria-label', d ? 'Switch to light theme' : 'Switch to dark theme'); }
+  $('themeBtn').addEventListener('click', function(){ var n = root.getAttribute('data-theme')==='dark' ? 'light' : 'dark'; root.setAttribute('data-theme', n); try{ localStorage.setItem('pref-theme', n); }catch(e){} syncTheme(); });
+  function syncFs(){ var f=root.getAttribute('data-font-size'); document.querySelectorAll('.fs button').forEach(function(b){ b.setAttribute('aria-pressed', String(b.getAttribute('data-fs')===f)); }); }
+  document.querySelectorAll('.fs button').forEach(function(b){ b.addEventListener('click', function(){ var f=b.getAttribute('data-fs'); root.setAttribute('data-font-size', f); try{ localStorage.setItem('pref-font-size', f); }catch(e){} syncFs(); }); });
+  syncTheme(); syncFs();
+
+  renderLog(); renderCards();
+})();
+</script>
+</body>
+</html>
